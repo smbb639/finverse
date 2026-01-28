@@ -2,27 +2,27 @@ import Expense, { IExpense } from "../models/Expense";
 
 
 export const createExpense = async (
-    userId: string,
-    amount: number,
-    category: string,
-    description?: string,
-    date?: Date
-  ) => {
-    const expenseData: any = {
-      user: userId,
-      amount,
-      category,
-      date: date || new Date()
-    };
-  
-    if (description) {
-      expenseData.description = description;
-    }
-  
-    const expense = await Expense.create(expenseData);
-  
-    return expense;
+  userId: string,
+  amount: number,
+  category: string,
+  description?: string,
+  date?: Date
+) => {
+  const expenseData: any = {
+    user: userId,
+    amount,
+    category,
+    date: date || new Date()
   };
+
+  if (description) {
+    expenseData.description = description;
+  }
+
+  const expense = await Expense.create(expenseData);
+
+  return expense;
+};
 
 export const getExpenses = async (
   userId: string,
@@ -32,12 +32,20 @@ export const getExpenses = async (
     endDate?: Date;
     limit?: number;
     skip?: number;
+    search?: string;
   }
 ) => {
   const query: any = { user: userId };
 
   if (filters?.category) {
     query.category = filters.category;
+  }
+
+  if (filters?.search) {
+    query.$or = [
+      { description: { $regex: filters.search, $options: 'i' } },
+      { category: { $regex: filters.search, $options: 'i' } }
+    ];
   }
 
   if (filters?.startDate || filters?.endDate) {
@@ -50,12 +58,15 @@ export const getExpenses = async (
     }
   }
 
-  const expenses = await Expense.find(query)
-    .sort({ date: -1 })
-    .limit(filters?.limit || 100)
-    .skip(filters?.skip || 0);
+  const [expenses, total] = await Promise.all([
+    Expense.find(query)
+      .sort({ date: -1 })
+      .limit(filters?.limit || 100)
+      .skip(filters?.skip || 0),
+    Expense.countDocuments(query)
+  ]);
 
-  return expenses;
+  return { expenses, total };
 };
 
 export const getExpenseById = async (expenseId: string, userId: string) => {

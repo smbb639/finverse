@@ -45,6 +45,10 @@ type User = {
   name: string;
   email: string;
 }
+import { useQuery } from '@tanstack/react-query';
+import { dashboardService, type DashboardStats } from '@/lib/dashboard';
+import { formatCurrency } from '@/lib/utils';
+
 export default function DashboardLayout({
   children,
 }: {
@@ -54,12 +58,17 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
 
- useEffect(() => {
-  if (typeof window !== 'undefined') {
-    const u = authService.getUser();
-    setUser(u);
-  }
-}, []);
+  const { data: dashboardData } = useQuery<DashboardStats>({
+    queryKey: ['dashboard'],
+    queryFn: () => dashboardService.getDashboardData(),
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const u = authService.getUser();
+      setUser(u);
+    }
+  }, []);
 
 
 
@@ -137,7 +146,7 @@ export default function DashboardLayout({
                     <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
                 </button>
-                
+
                 {/* Dropdown Menu */}
                 <div className="absolute right-0 top-full mt-2 w-56 py-2 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="px-4 py-3 border-b">
@@ -174,7 +183,7 @@ export default function DashboardLayout({
                 <X className="h-6 w-6" />
               </button>
             </div>
-            
+
             <nav className="space-y-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -233,11 +242,15 @@ export default function DashboardLayout({
               <div className="space-y-3">
                 <div className="p-3 bg-green-50 rounded-lg">
                   <p className="text-xs text-green-700">Monthly Budget</p>
-                  <p className="text-lg font-bold text-green-800">$2,500</p>
+                  <p className="text-lg font-bold text-green-800">
+                    {formatCurrency(dashboardData?.stats?.monthlyBudget || 0)}
+                  </p>
                 </div>
                 <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-blue-700">Expenses</p>
-                  <p className="text-lg font-bold text-blue-800">$1,234</p>
+                  <p className="text-xs text-blue-700">Monthly Expenses</p>
+                  <p className="text-lg font-bold text-blue-800">
+                    {formatCurrency(dashboardData?.currentMonth?.total || 0)}
+                  </p>
                 </div>
               </div>
             </div>

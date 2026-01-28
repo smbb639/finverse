@@ -4,6 +4,7 @@ export interface DashboardStats {
   averageDailyExpense: number;
   largestExpense: number;
   favoriteCategory: string;
+  monthlyBudget: number;
 }
 
 export interface MonthlySummary {

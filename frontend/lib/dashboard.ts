@@ -13,6 +13,7 @@ export interface DashboardStats {
     averageDailyExpense: number;
     largestExpense: number;
     favoriteCategory: string;
+    monthlyBudget: number;
   };
   monthlySummary: Array<{
     month: string;
@@ -67,26 +68,26 @@ export const dashboardService = {
     if (filters?.category) params.append('category', filters.category);
     if (filters?.limit) params.append('limit', filters.limit.toString());
 
-    const response = await api.get<DashboardStats>(
+    const response = await api.get<{ success: boolean; data: DashboardStats }>(
       `/dashboard${params.toString() ? `?${params.toString()}` : ''}`
     );
-    return response.data;
+    return response.data.data;
   },
 
   async getQuickStats() {
-    const response = await api.get<QuickStats>('/dashboard/quick-stats');
-    return response.data;
+    const response = await api.get<{ success: boolean; data: QuickStats }>('/dashboard/quick-stats');
+    return response.data.data;
   },
 
   async getSpendingTrends(months: number = 12) {
-    const response = await api.get<SpendingTrend[]>(
+    const response = await api.get<{ success: boolean; data: SpendingTrend[] }>(
       `/dashboard/trends?months=${months}`
     );
-    return response.data;
+    return response.data.data;
   },
 
   async getCategoryInsights(category: string) {
-    const response = await api.get(`/dashboard/category/${category}`);
-    return response.data;
+    const response = await api.get<{ success: boolean; data: any }>(`/dashboard/category/${category}`);
+    return response.data.data;
   },
 };

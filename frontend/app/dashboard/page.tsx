@@ -5,12 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dashboardService, type DashboardStats, type QuickStats } from '@/lib/dashboard';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  CreditCard, 
-  Calendar, 
+import {
+  TrendingUp,
+  TrendingDown,
+  IndianRupee,
+  CreditCard,
+  Calendar,
   PieChart,
   ArrowUpRight,
   ArrowDownRight,
@@ -48,7 +48,7 @@ const featureCards = [
   {
     title: 'Budget Planner',
     description: 'Set and monitor your monthly budget',
-    icon: DollarSign,
+    icon: IndianRupee,
     color: 'from-green-500 to-emerald-500',
     href: '/dashboard/budget'
   },
@@ -76,7 +76,7 @@ const featureCards = [
   {
     title: 'Savings Goals',
     description: 'Plan and achieve your savings targets',
-    icon: DollarSign,
+    icon: IndianRupee,
     color: 'from-indigo-500 to-blue-500',
     href: '/dashboard/savings'
   }
@@ -96,40 +96,21 @@ const CATEGORY_COLORS = {
   Other: '#64748B'
 };
 
+import { useQuery } from '@tanstack/react-query';
+import { formatCurrency } from '@/lib/utils';
+
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null);
-  const [quickStats, setQuickStats] = useState<QuickStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: dashboardData, isLoading: loadingDashboard } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => dashboardService.getDashboardData(),
+  });
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const { data: quickStats, isLoading: loadingStats } = useQuery({
+    queryKey: ['quick-stats'],
+    queryFn: () => dashboardService.getQuickStats(),
+  });
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const [dashboard, stats] = await Promise.all([
-        dashboardService.getDashboardData(),
-        dashboardService.getQuickStats()
-      ]);
-      setDashboardData(dashboard);
-      setQuickStats(stats);
-    } catch (error) {
-      console.error('Failed to fetch dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const loading = loadingDashboard || loadingStats;
 
   if (loading) {
     return (
@@ -189,24 +170,26 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Quick Stats Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-0 shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-blue-100">Remaining Balance</CardTitle>
+                <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <IndianRupee className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(dashboardData?.stats?.totalExpenses || 0)}
+                <div className="text-3xl font-bold">
+                  {formatCurrency((dashboardData?.stats?.monthlyBudget || 0) - (dashboardData?.currentMonth?.total || 0))}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  +2.5% from last month
-                </p>
+                <div className="flex items-center mt-2 text-xs text-blue-100 italic">
+                  Budget: {formatCurrency(dashboardData?.stats?.monthlyBudget || 0)}
+                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">This Month</CardTitle>
+                <CardTitle className="text-sm font-medium">Spent this Month</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -214,22 +197,21 @@ export default function DashboardPage() {
                   {formatCurrency(dashboardData?.currentMonth?.total || 0)}
                 </div>
                 <div className="flex items-center text-xs">
-                  {dashboardData?.currentMonth?.comparedToLastMonth || 0 >= 0 ? (
+                  {dashboardData?.currentMonth?.comparedToLastMonth !== undefined ? (
                     <>
-                      <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-                      <span className="text-green-500">
-                        {Math.abs(dashboardData?.currentMonth?.comparedToLastMonth || 0).toFixed(1)}%
+                      {dashboardData.currentMonth.comparedToLastMonth >= 0 ? (
+                        <ArrowUpRight className="h-3 w-3 text-red-500 mr-1" />
+                      ) : (
+                        <ArrowDownRight className="h-3 w-3 text-green-500 mr-1" />
+                      )}
+                      <span className={dashboardData.currentMonth.comparedToLastMonth >= 0 ? "text-red-500" : "text-green-500"}>
+                        {Math.abs(dashboardData.currentMonth.comparedToLastMonth).toFixed(1)}%
                       </span>
+                      <span className="text-muted-foreground ml-1">vs last month</span>
                     </>
                   ) : (
-                    <>
-                      <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-                      <span className="text-red-500">
-                        {Math.abs(dashboardData?.currentMonth?.comparedToLastMonth || 0).toFixed(1)}%
-                      </span>
-                    </>
+                    <span className="text-muted-foreground">No data</span>
                   )}
-                  <span className="text-muted-foreground ml-1">vs last month</span>
                 </div>
               </CardContent>
             </Card>
@@ -284,8 +266,8 @@ export default function DashboardPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip 
-                      formatter={(value) => [`$${value}`, 'Amount']}
+                    <Tooltip
+                      formatter={(value) => [`₹${value}`, 'Amount']}
                       labelFormatter={(label) => `Month: ${label}`}
                     />
                     <Legend />
@@ -326,12 +308,12 @@ export default function DashboardPage() {
                     className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div 
+                      <div
                         className="h-10 w-10 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: `${CATEGORY_COLORS[transaction.category as keyof typeof CATEGORY_COLORS]}20` }}
                       >
-                        <CreditCard 
-                          className="h-5 w-5" 
+                        <CreditCard
+                          className="h-5 w-5"
                           style={{ color: CATEGORY_COLORS[transaction.category as keyof typeof CATEGORY_COLORS] }}
                         />
                       </div>
@@ -381,13 +363,13 @@ export default function DashboardPage() {
                       dataKey="amount"
                     >
                       {dashboardData?.categoryBreakdown?.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || '#64748B'} 
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || '#64748B'}
                         />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => [`$${value}`, 'Amount']} />
+                    <Tooltip formatter={(value) => [`₹${value}`, 'Amount']} />
                   </RechartsPieChart>
                 </ResponsiveContainer>
               </div>

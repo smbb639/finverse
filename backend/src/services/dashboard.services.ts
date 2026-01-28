@@ -102,7 +102,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
   const totalExpenses = totalExpensesResult[0]?.total || 0;
   const totalTransactions = totalExpensesResult[0]?.count || 0;
   const lastMonthTotal = lastMonthData[0]?.total || 0;
-  
+
   // Calculate average daily expense
   const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
   const averageDailyExpense = daysDiff > 0 ? totalExpenses / daysDiff : 0;
@@ -111,8 +111,8 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
   const favoriteCategory = categoryData[0]?._id || "None";
 
   // Calculate percentage change
-  const percentageChange = lastMonthTotal > 0 
-    ? ((totalExpenses - lastMonthTotal) / lastMonthTotal) * 100 
+  const percentageChange = lastMonthTotal > 0
+    ? ((totalExpenses - lastMonthTotal) / lastMonthTotal) * 100
     : 0;
 
   // Format monthly data
@@ -143,7 +143,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
   // Get current month data
   const currentMonthStart = startOfMonth(new Date());
   const currentMonthEnd = endOfMonth(new Date());
-  
+
   const currentMonthData = await Expense.aggregate([
     {
       $match: {
@@ -159,7 +159,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
   // Previous month for comparison
   const previousMonthStart = startOfMonth(subMonths(new Date(), 1));
   const previousMonthEnd = endOfMonth(subMonths(new Date(), 1));
-  
+
   const previousMonthData = await Expense.aggregate([
     {
       $match: {
@@ -171,8 +171,8 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
   ]);
 
   const previousMonthTotal = previousMonthData[0]?.total || 0;
-  const monthComparison = previousMonthTotal > 0 
-    ? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100 
+  const monthComparison = previousMonthTotal > 0
+    ? ((currentMonthTotal - previousMonthTotal) / previousMonthTotal) * 100
     : 100;
 
   return {
@@ -187,7 +187,8 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
       totalTransactions,
       averageDailyExpense: parseFloat(averageDailyExpense.toFixed(2)),
       largestExpense: largestExpense?.amount || 0,
-      favoriteCategory
+      favoriteCategory,
+      monthlyBudget: user.monthlyBudget || 0
     },
     monthlySummary: formattedMonthlyData,
     categoryBreakdown: formattedCategoryData,
@@ -247,7 +248,7 @@ export const getSpendingTrends = async (userId: string, months: number = 12) => 
 
 export const getCategoryInsights = async (userId: string, category: string) => {
   const sixMonthsAgo = subMonths(new Date(), 6);
-  
+
   const categoryData = await Expense.aggregate([
     {
       $match: {

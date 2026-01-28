@@ -8,6 +8,7 @@ import {
   deleteExpense,
   getExpenseSummary
 } from "../services/expense.services";
+import User from "../models/User";
 
 export const addExpense = async (req: AuthRequest, res: Response) => {
   try {
@@ -46,7 +47,7 @@ export const getAllExpenses = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { category, startDate, endDate, limit, skip } = req.query;
+    const { category, startDate, endDate, limit, skip, q } = req.query;
 
     const filters: any = {};
     if (category) filters.category = category as string;
@@ -54,11 +55,12 @@ export const getAllExpenses = async (req: AuthRequest, res: Response) => {
     if (endDate) filters.endDate = new Date(endDate as string);
     if (limit) filters.limit = parseInt(limit as string);
     if (skip) filters.skip = parseInt(skip as string);
+    if (q) filters.search = q as string;
 
-    const expenses = await getExpenses(userId, filters);
+    const { expenses, total } = await getExpenses(userId, filters);
 
     res.status(200).json({
-      count: expenses.length,
+      count: total,
       expenses
     });
   } catch (error: any) {
@@ -159,5 +161,33 @@ export const getSummary = async (req: AuthRequest, res: Response) => {
     res.status(200).json({ summary });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateBudget = async (req: AuthRequest, res: Response) => {
+  try {
+    const { monthlyBudget } = req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { monthlyBudget },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Budget updated successfully",
+      monthlyBudget: user.monthlyBudget
+    });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
   }
 };
