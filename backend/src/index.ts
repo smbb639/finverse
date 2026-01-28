@@ -11,6 +11,10 @@ async function connection() {
 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(`Dashboard available at http://localhost:${PORT}/api/dashboard`);
+    console.log(`Auth endpoints at http://localhost:${PORT}/api/auth`);
+    console.log(`Expense endpoints at http://localhost:${PORT}/api/expenses`);
+    
   });
 }
 

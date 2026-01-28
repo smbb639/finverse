@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRouter from './routes/auth.route';
 import expenseRouter from './routes/expense.route';
 dotenv.config();
+import dashboardRouter from './routes/dashboard.route';
 
 
 const app: Application = express();
@@ -20,6 +21,8 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/auth', authRouter);
+app.use('/api/dashboard', dashboardRouter);
 app.use('/api/expenses', expenseRouter);
+
 
 export default app;
