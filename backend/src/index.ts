@@ -9,8 +9,9 @@ const PORT = process.env.PORT;
 async function connection() {
   await connectDB();
 
-  app.listen(PORT, () => { 
-    console.log(`Server is running on the port ${PORT}`); 
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log("Hello backend")
     
   });
 }
