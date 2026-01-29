@@ -13,7 +13,19 @@ import {
   TrendingUp,
   CreditCard,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Utensils,
+  Car,
+  ShoppingBag,
+  Receipt,
+  Film,
+  Heart,
+  GraduationCap,
+  Plane,
+  Wallet,
+  MoreHorizontal,
+  Calendar,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { expenseService, type Expense, type ExpenseFilters } from '@/lib/expense';
@@ -37,6 +49,19 @@ const CATEGORIES = [
   "Investments",
   "Other"
 ];
+
+const CATEGORY_ICONS: Record<string, any> = {
+  Food: Utensils,
+  Transportation: Car,
+  Shopping: ShoppingBag,
+  Bills: Receipt,
+  Entertainment: Film,
+  Healthcare: Heart,
+  Education: GraduationCap,
+  Travel: Plane,
+  Investments: Wallet,
+  Other: MoreHorizontal,
+};
 
 const CATEGORY_COLORS: Record<string, string> = {
   Food: 'bg-blue-100 text-blue-600',
@@ -63,6 +88,16 @@ export default function ExpensesPage() {
   const [filters, setFilters] = useState<ExpenseFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES[0]);
+
+  // Sync selectedCategory when editing
+  useEffect(() => {
+    if (editingExpense) {
+      setSelectedCategory(editingExpense.category);
+    } else {
+      setSelectedCategory(CATEGORIES[0]);
+    }
+  }, [editingExpense, isModalOpen]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -99,20 +134,27 @@ export default function ExpensesPage() {
   // Mutations
   const addMutation = useMutation({
     mutationFn: expenseService.addExpense,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['expenses-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['expenses'] }),
+        queryClient.invalidateQueries({ queryKey: ['expenses-summary'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      ]);
+      setFilters({});
+      setSearchQuery('');
+      setCurrentPage(1);
       setIsModalOpen(false);
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => expenseService.updateExpense(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['expenses-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['expenses'] }),
+        queryClient.invalidateQueries({ queryKey: ['expenses-summary'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      ]);
       setIsModalOpen(false);
       setEditingExpense(null);
     },
@@ -120,10 +162,12 @@ export default function ExpensesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: expenseService.deleteExpense,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['expenses-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['expenses'] }),
+        queryClient.invalidateQueries({ queryKey: ['expenses-summary'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      ]);
     },
   });
 
@@ -140,11 +184,20 @@ export default function ExpensesPage() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    const dateVal = formData.get('date') as string;
+    const [year, month, day] = dateVal.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+
+    // Fetch the current time from the PC locally
+    const now = new Date();
+    dateObj.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
     const data = {
       amount: Number(formData.get('amount')),
       category: formData.get('category') as string,
       description: formData.get('description') as string,
-      date: formData.get('date') as string,
+      date: dateObj.toISOString(),
     };
 
     if (editingExpense) {
@@ -424,83 +477,161 @@ export default function ExpensesPage() {
       {/* Modal / Dialog */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <Card className="relative w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle className="text-2xl font-bold">
-                {editingExpense ? 'Edit Expense' : 'Add New Expense'}
-              </CardTitle>
-              <CardDescription>
-                Fill in the details below to record your transaction.
-              </CardDescription>
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300" onClick={() => setIsModalOpen(false)} />
+          <Card className="relative w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 border-0 bg-white/95 overflow-hidden ring-1 ring-black/5">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+
+            <CardHeader className="flex flex-row items-center justify-between pb-2 border-none">
+              <div>
+                <CardTitle className="text-xl font-bold text-slate-900">
+                  {editingExpense ? 'Modify Expense' : 'Add Expense'}
+                </CardTitle>
+                <CardDescription className="text-slate-500">
+                  {editingExpense ? 'Update your transaction details' : 'Quickly record your spending'}
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsModalOpen(false)}
+                className="h-8 w-8 rounded-full hover:bg-slate-100 text-slate-400"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </CardHeader>
+
             <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4 p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2 col-span-2 md:col-span-1">
-                    <Label htmlFor="amount">Amount</Label>
-                    <div className="relative">
-                      <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="amount"
-                        name="amount"
-                        type="number"
-                        required
-                        placeholder="0.00"
-                        className="pl-10"
-                        defaultValue={editingExpense?.amount}
-                      />
+              <CardContent className="space-y-6 pt-2">
+                {/* Amount Section - Prominent */}
+                <div className="flex flex-col items-center justify-center py-4 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                  <Label htmlFor="amount" className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-2">Transaction Amount</Label>
+                  <div className="relative flex items-center justify-center group w-full max-w-[240px]">
+                    <span className="text-4xl font-bold text-blue-600 mr-2 drop-shadow-sm">₹</span>
+                    <input
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      step="0.01"
+                      required
+                      placeholder="0.00"
+                      className="w-full bg-transparent text-center text-5xl font-black text-slate-900 placeholder:text-slate-200 focus:outline-none focus:ring-0 selection:bg-blue-100"
+                      defaultValue={editingExpense?.amount}
+                      autoFocus
+                    />
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-100 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300 rounded-full" />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Category Selection - Visual Grid */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-indigo-500" />
+                      Select Category
+                    </Label>
+                    <input type="hidden" name="category" value={selectedCategory} />
+                    <div className="grid grid-cols-5 gap-2">
+                      {CATEGORIES.map(cat => {
+                        const Icon = CATEGORY_ICONS[cat] || MoreHorizontal;
+                        const isSelected = selectedCategory === cat;
+                        return (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all duration-200 border-2 ${isSelected
+                              ? 'bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm scale-105'
+                              : 'bg-white border-slate-50 text-slate-400 hover:border-slate-200 hover:bg-slate-50'
+                              }`}
+                          >
+                            <div className={`p-2 rounded-lg ${isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-tighter truncate w-full text-center">
+                              {cat}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <div className="space-y-2 col-span-2 md:col-span-1">
-                    <Label htmlFor="date">Date</Label>
-                    <Input
-                      id="date"
-                      name="date"
-                      type="date"
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Date Picker */}
+                    <div className="space-y-2">
+                      <Label htmlFor="date" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-emerald-500" />
+                        Date
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="date"
+                          name="date"
+                          type="date"
+                          required
+                          className="bg-slate-50 border-slate-100 focus:bg-white focus:ring-emerald-500 transition-all text-slate-900"
+                          defaultValue={editingExpense ? format(new Date(editingExpense.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Suggestions / Placeholder for extra field */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                        Quick Add
+                      </Label>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {['100', '500', '1000'].map(amt => (
+                          <button
+                            key={amt}
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById('amount') as HTMLInputElement;
+                              if (input) {
+                                const current = parseFloat(input.value) || 0;
+                                input.value = (current + parseFloat(amt)).toString();
+                              }
+                            }}
+                            className="px-3 py-1.5 text-xs font-bold bg-slate-100 hover:bg-blue-100 hover:text-blue-600 text-slate-600 rounded-lg transition-colors border border-transparent hover:border-blue-200"
+                          >
+                            +₹{amt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="text-sm font-semibold text-slate-700">Memo / Description</Label>
+                    <textarea
+                      id="description"
+                      name="description"
                       required
-                      defaultValue={editingExpense ? format(new Date(editingExpense.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')}
+                      placeholder="What was this for?"
+                      className="w-full min-h-[80px] rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none"
+                      defaultValue={editingExpense?.description}
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <select
-                    id="category"
-                    name="category"
-                    required
-                    className="w-full flex h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingExpense?.category || CATEGORIES[0]}
-                  >
-                    {CATEGORIES.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    required
-                    placeholder="What did you spend on?"
-                    className="w-full min-h-[100px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingExpense?.description}
-                  />
-                </div>
               </CardContent>
-              <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-100">
-                <Button variant="ghost" type="button" onClick={() => setIsModalOpen(false)}>
+              <div className="flex items-center gap-3 p-6 pt-2">
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 h-12 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+                >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={addMutation.isPending || updateMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700 w-32"
+                  className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-200 transition-all hover:shadow-xl active:scale-[0.98]"
                 >
-                  {addMutation.isPending || updateMutation.isPending ? 'Saving...' : (editingExpense ? 'Update' : 'Save')}
+                  {addMutation.isPending || updateMutation.isPending
+                    ? <div className="flex items-center gap-2"><div className="h-4 w-4 border-2 border-white/30 border-t-white animate-spin rounded-full" />Saving...</div>
+                    : (editingExpense ? 'Update Expense' : 'Save Transaction')}
                 </Button>
               </div>
             </form>
@@ -510,43 +641,94 @@ export default function ExpensesPage() {
       {/* Budget Modal */}
       {isBudgetModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsBudgetModalOpen(false)} />
-          <Card className="relative w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle className="text-xl font-bold">Set Monthly Budget</CardTitle>
-              <CardDescription>Enter your total budget for this month.</CardDescription>
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300" onClick={() => setIsBudgetModalOpen(false)} />
+          <Card className="relative w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 border-0 bg-white/95 overflow-hidden ring-1 ring-black/5">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500" />
+
+            <CardHeader className="flex flex-row items-center justify-between pb-2 border-none">
+              <div>
+                <CardTitle className="text-xl font-bold text-slate-900">Monthly Budget</CardTitle>
+                <CardDescription className="text-slate-500">Set your total spending limit for this month.</CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsBudgetModalOpen(false)}
+                className="h-8 w-8 rounded-full hover:bg-slate-100 text-slate-400"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </CardHeader>
+
             <form onSubmit={(e) => {
               e.preventDefault();
               const amount = Number(new FormData(e.currentTarget).get('budget'));
               budgetMutation.mutate(amount);
             }}>
-              <CardContent className="p-6">
-                <div className="space-y-2">
-                  <Label htmlFor="budget">Monthly Budget</Label>
-                  <div className="relative">
-                    <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input
+              <CardContent className="space-y-6 pt-2">
+                {/* Budget Amount Section */}
+                <div className="flex flex-col items-center justify-center py-8 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
+                  <Label htmlFor="budget" className="text-xs uppercase tracking-widest text-emerald-600/70 font-bold mb-2">Target Budget</Label>
+                  <div className="relative flex items-center justify-center group w-full max-w-[280px]">
+                    <span className="text-4xl font-bold text-emerald-600 mr-2 drop-shadow-sm">₹</span>
+                    <input
                       id="budget"
                       name="budget"
                       type="number"
                       required
-                      placeholder="Enter amount"
-                      className="pl-10"
+                      placeholder="0"
+                      className="w-full bg-transparent text-center text-5xl font-black text-slate-900 placeholder:text-slate-200 focus:outline-none focus:ring-0 selection:bg-emerald-100"
+                      defaultValue={budget > 0 ? budget : ''}
+                      autoFocus
                     />
                   </div>
                 </div>
+
+                {/* Quick Selection */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    Recommended Limits
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['5000', '10000', '25000', '50000', '75000', '100000'].map(amt => (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById('budget') as HTMLInputElement;
+                          if (input) input.value = amt;
+                        }}
+                        className="px-3 py-2 text-sm font-bold bg-white hover:bg-emerald-50 hover:text-emerald-600 text-slate-600 rounded-xl transition-all border border-slate-100 hover:border-emerald-200 shadow-sm"
+                      >
+                        ₹{(parseInt(amt) / 1000)}k
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50">
+                  <p className="text-xs text-blue-600 leading-relaxed font-medium">
+                    Setting a budget helps you track your financial health. You'll see alerts when you approach your limit.
+                  </p>
+                </div>
               </CardContent>
-              <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-100">
-                <Button variant="ghost" type="button" onClick={() => setIsBudgetModalOpen(false)}>
+
+              <div className="flex items-center gap-3 p-6 pt-2">
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => setIsBudgetModalOpen(false)}
+                  className="flex-1 h-12 rounded-xl font-bold text-slate-500 hover:bg-slate-100"
+                >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={budgetMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-lg shadow-emerald-200 transition-all hover:shadow-xl active:scale-[0.98]"
                 >
-                  {budgetMutation.isPending ? 'Updating...' : 'Update Budget'}
+                  {budgetMutation.isPending ? 'Updating...' : 'Set Budget Limit'}
                 </Button>
               </div>
             </form>
