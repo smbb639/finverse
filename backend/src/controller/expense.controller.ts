@@ -59,7 +59,7 @@ export const getAllExpenses = async (req: AuthRequest, res: Response) => {
 
     const { expenses, total } = await getExpenses(userId, filters);
 
-    res.status(200).json({
+    res.status(201).json({
       count: total,
       expenses
     });
@@ -83,7 +83,7 @@ export const getExpense = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    res.status(200).json({ expense });
+    res.status(201).json({ expense });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -111,7 +111,7 @@ export const updateExpenseController = async (req: AuthRequest, res: Response) =
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    res.status(200).json({
+    res.status(201).json({
       message: "Expense updated successfully",
       expense
     });
@@ -135,7 +135,7 @@ export const removeExpense = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    res.status(200).json({
+    res.status(201).json({
       message: "Expense deleted successfully"
     });
   } catch (error: any) {
@@ -158,7 +158,7 @@ export const getSummary = async (req: AuthRequest, res: Response) => {
       endDate ? new Date(endDate as string) : undefined
     );
 
-    res.status(200).json({ summary });
+    res.status(201).json({ summary });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -183,7 +183,7 @@ export const updateBudget = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({
+    res.status(201).json({
       message: "Budget updated successfully",
       monthlyBudget: user.monthlyBudget
     });
