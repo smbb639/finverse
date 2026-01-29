@@ -126,7 +126,7 @@ export const removeExpense = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(402).json({ message: "Unauthorized" });
     }
 
     const expense = await deleteExpense(id as any, userId);
@@ -149,7 +149,7 @@ export const getSummary = async (req: AuthRequest, res: Response) => {
     const { startDate, endDate } = req.query;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(402).json({ message: "Unauthorized" });
     }
 
     const summary = await getExpenseSummary(
@@ -170,7 +170,7 @@ export const updateBudget = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(402).json({ message: "Unauthorized" });
     }
 
     const user = await User.findByIdAndUpdate(
