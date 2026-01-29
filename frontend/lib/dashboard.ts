@@ -21,6 +21,11 @@ export interface DashboardStats {
     total: number;
     transactions: number;
   }>;
+  dailySummary?: Array<{
+    date: string;
+    total: number;
+    count: number;
+  }>;
   categoryBreakdown: Array<{
     category: string;
     amount: number;

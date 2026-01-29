@@ -22,9 +22,10 @@ import {
   FileText,
   HelpCircle,
   LogOut,
-  User
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -74,13 +75,13 @@ export default function DashboardLayout({
 
   const handleLogout = () => {
     authService.logout();
-    window.location.href = '/auth/login';
+    window.location.href = '/login';
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* Top Navigation Bar */}
-      <nav className="sticky top-0 z-50 border-b bg-white shadow-sm">
+      <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-sm">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo and Mobile Menu Button */}
@@ -108,7 +109,7 @@ export default function DashboardLayout({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                 >
                   {item.name}
                 </Link>
@@ -119,43 +120,46 @@ export default function DashboardLayout({
             <div className="flex items-center gap-4">
               {/* Search */}
               <div className="hidden md:block relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="search"
                   placeholder="Search..."
-                  className="pl-10 pr-4 py-2 w-64 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+                  className="pl-10 pr-4 py-2 w-64 rounded-lg border border-border bg-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
                 />
               </div>
 
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               {/* Notifications */}
-              <button className="relative p-2 text-gray-600 hover:text-blue-600">
+              <button className="relative p-2 text-muted-foreground hover:text-primary transition-colors">
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground font-bold flex items-center justify-center">
                   3
                 </span>
               </button>
 
               {/* User Profile Dropdown */}
               <div className="relative group">
-                <button className="flex items-center gap-3 p-1 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                    <User className="h-4 w-4 text-white" />
+                <button className="flex items-center gap-3 p-1 rounded-lg hover:bg-muted transition-colors">
+                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                    <User className="h-4 w-4 text-primary-foreground" />
                   </div>
                   <div className="hidden md:block text-left">
                     <p className="text-sm font-semibold">{user?.name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                 </button>
 
                 {/* Dropdown Menu */}
-                <div className="absolute right-0 top-full mt-2 w-56 py-2 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                  <div className="px-4 py-3 border-b">
+                <div className="absolute right-0 top-full mt-2 w-56 py-2 bg-popover text-popover-foreground rounded-lg shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold">{user?.name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"
                   >
                     <LogOut className="h-4 w-4" />
                     Logout
@@ -170,21 +174,21 @@ export default function DashboardLayout({
       {/* Mobile Sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black/30" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed inset-y-0 left-0 w-64 bg-white p-6">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-y-0 left-0 w-64 bg-background border-r border-border p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                  <Wallet className="h-5 w-5 text-white" />
+                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                  <Wallet className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-xl font-bold">Finverse</span>
+                <span className="text-xl font-bold text-foreground">Finverse</span>
               </div>
               <button onClick={() => setSidebarOpen(false)}>
                 <X className="h-6 w-6" />
               </button>
             </div>
 
-            <nav className="space-y-2">
+            <nav className="space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -192,10 +196,10 @@ export default function DashboardLayout({
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                       pathname === item.href
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-gray-700 hover:bg-gray-100"
+                        ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -211,9 +215,9 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block lg:col-span-2 xl:col-span-2 border-r bg-white">
+        <aside className="hidden lg:block lg:col-span-2 xl:col-span-2 border-r border-border bg-card shadow-sm">
           <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-6">
-            <nav className="space-y-2">
+            <nav className="space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -221,10 +225,10 @@ export default function DashboardLayout({
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                       pathname === item.href
-                        ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 border border-blue-100 shadow-sm"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                        ? "bg-primary/10 text-primary border border-primary/10 shadow-sm"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -235,20 +239,20 @@ export default function DashboardLayout({
             </nav>
 
             {/* Quick Stats */}
-            <div className="mt-12">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            <div className="mt-10 pt-10 border-t border-border">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">
                 Quick Stats
               </h3>
               <div className="space-y-3">
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <p className="text-xs text-green-700">Monthly Budget</p>
-                  <p className="text-lg font-bold text-green-800">
+                <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 transition-colors">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-primary/70 mb-1">Monthly Budget</p>
+                  <p className="text-lg font-bold text-primary">
                     {formatCurrency(dashboardData?.stats?.monthlyBudget || 0)}
                   </p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-blue-700">Monthly Expenses</p>
-                  <p className="text-lg font-bold text-blue-800">
+                <div className="p-4 bg-muted rounded-xl border border-border transition-colors">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">Monthly Expenses</p>
+                  <p className="text-lg font-bold text-foreground">
                     {formatCurrency(dashboardData?.currentMonth?.total || 0)}
                   </p>
                 </div>

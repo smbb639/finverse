@@ -16,7 +16,8 @@ import {
   ArrowDownRight,
   MoreVertical,
   Plus,
-  Download
+  Download,
+  BarChart3
 } from 'lucide-react';
 import {
   LineChart,
@@ -31,7 +32,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  AreaChart,
+  Area,
 } from 'recharts';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -97,12 +100,13 @@ const CATEGORY_COLORS = {
 };
 
 import { useQuery } from '@tanstack/react-query';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { data: dashboardData, isLoading: loadingDashboard } = useQuery({
-    queryKey: ['dashboard'],
+    queryKey: ['dashboard', 'summary-v9'],
     queryFn: () => dashboardService.getDashboardData(),
+    refetchOnMount: true,
   });
 
   const { data: quickStats, isLoading: loadingStats } = useQuery({
@@ -247,48 +251,88 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Monthly Trend Chart */}
+          {/* Trend Chart with View Toggle */}
           <Card>
             <CardHeader>
-              <CardTitle>Spending Trend</CardTitle>
-              <CardDescription>Monthly expense overview</CardDescription>
+              <div>
+                <CardTitle>Spending Trend</CardTitle>
+                <CardDescription>
+                  Monthly historical overview
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
+              <div className="h-[350px] w-full pt-4 relative">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={dashboardData?.monthlySummary?.map(item => ({
-                      name: item.month,
-                      amount: item.total,
-                      transactions: item.transactions
-                    }))}
+                  <AreaChart
+                    data={(dashboardData?.monthlySummary ?? [])
+                      .slice()
+                      .reverse()
+                      .map(item => ({
+                        date: `${item.month} ${item.year}`,
+                        amount: item.total,
+                        transactions: item.transactions,
+                      }))
+                    }
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) => [`₹${value}`, 'Amount']}
-                      labelFormatter={(label) => `Month: ${label}`}
+
+                    <defs>
+                      <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="colorTransactions" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                    <XAxis
+                      dataKey="date"
                     />
-                    <Legend />
-                    <Line
+
+                    <YAxis
+                      yAxisId="left"
+                      tickFormatter={(v) => `₹${v}`}
+                    />
+
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      allowDecimals={false}
+                    />
+
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Legend verticalAlign="top" height={36} iconType="circle" />
+                    <Area
+                      yAxisId="left"
                       type="monotone"
                       dataKey="amount"
                       stroke="#3B82F6"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                      name="Total Amount"
+                      strokeWidth={3}
+                      fill="url(#colorAmount)"
+                      name="Spending"
                     />
-                    <Line
+
+                    <Area
+                      yAxisId="right"
                       type="monotone"
                       dataKey="transactions"
                       stroke="#10B981"
                       strokeWidth={2}
-                      strokeDasharray="5 5"
+                      fill="url(#colorTransactions)"
                       name="Transactions"
                     />
-                  </LineChart>
+
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
@@ -305,7 +349,7 @@ export default function DashboardPage() {
                 {dashboardData?.recentTransactions?.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/50 hover:bg-muted transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
                       <div
@@ -349,18 +393,37 @@ export default function DashboardPage() {
               <CardDescription>Spending by category</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
+                  <RechartsPieChart margin={{ top: 20, bottom: 20 }}>
                     <Pie
                       data={dashboardData?.categoryBreakdown}
                       cx="50%"
                       cy="50%"
+                      nameKey="category"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ cx, cy, midAngle = 0, innerRadius = 0, outerRadius = 80, percent }) => {
+                        if (percent < 0.05) return null; // Don't show labels for tiny slices
+                        const radius = Number(innerRadius) + (Number(outerRadius) - Number(innerRadius)) * 0.6;
+                        const x = Number(cx) + radius * Math.cos(-midAngle * (Math.PI / 180));
+                        const y = Number(cy) + radius * Math.sin(-midAngle * (Math.PI / 180));
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            fill="white"
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            className="text-[12px] font-bold"
+                          >
+                            {`${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        );
+                      }}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="amount"
+                      stroke="none"
                     >
                       {dashboardData?.categoryBreakdown?.map((entry, index) => (
                         <Cell
@@ -369,7 +432,17 @@ export default function DashboardPage() {
                         />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => [`₹${value}`, 'Amount']} />
+                    <Tooltip
+                      formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      align="center"
+                      iconType="circle"
+                      layout="horizontal"
+                      wrapperStyle={{ paddingTop: '20px' }}
+                    />
                   </RechartsPieChart>
                 </ResponsiveContainer>
               </div>
@@ -391,14 +464,14 @@ export default function DashboardPage() {
                             <Icon className="h-6 w-6 text-white" />
                           </div>
                           <div>
-                            <h4 className="font-semibold group-hover:text-blue-600 transition-colors">
+                            <h4 className="font-semibold group-hover:text-primary transition-colors">
                               {feature.title}
                             </h4>
                             <p className="text-sm text-muted-foreground">
                               {feature.description}
                             </p>
                           </div>
-                          <ArrowUpRight className="h-5 w-5 ml-auto text-gray-400 group-hover:text-blue-600 transition-colors" />
+                          <ArrowUpRight className="h-5 w-5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
                         </div>
                       </CardContent>
                     </Card>
@@ -442,6 +515,7 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
         </div>
       </div>
     </div>
