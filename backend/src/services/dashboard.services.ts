@@ -1,6 +1,6 @@
 import Expense from "../models/Expense";
 import User from "../models/User";
-import { startOfMonth, endOfMonth, subMonths, format, parseISO } from "date-fns";
+import { startOfMonth, endOfMonth, subMonths, format, parseISO, subDays } from "date-fns";
 import mongoose from "mongoose";
 
 export interface DashboardFilters {
@@ -16,13 +16,21 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     throw new Error("User not found");
   }
 
-  const endDate = filters?.endDate || new Date();
-  const startDate = filters?.startDate || subMonths(endDate, 6);
+  // Ensure endDate is the end of the day to capture all of today's transactions
+  const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
+  if (!filters?.endDate) endDate.setHours(23, 59, 59, 999);
+
+  const startDate = filters?.startDate
+    ? new Date(filters.startDate)
+    : subDays(endDate, 59);
 
   const baseQuery: any = {
     user: new mongoose.Types.ObjectId(userId),
     date: { $gte: startDate, $lte: endDate }
   };
+
+  // DEBUG LOG
+  console.log(`DEBUG_RANGE: ${startDate.toISOString()} TO ${endDate.toISOString()}`);
 
   if (filters?.category) {
     baseQuery.category = filters.category;
@@ -34,7 +42,6 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     monthlyData,
     categoryData,
     recentTransactions,
-    lastMonthData,
     largestExpense
   ] = await Promise.all([
     // Total expenses in period
@@ -48,10 +55,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
       { $match: baseQuery },
       {
         $group: {
-          _id: {
-            year: { $year: "$date" },
-            month: { $month: "$date" }
-          },
+          _id: { year: { $year: "$date" }, month: { $month: "$date" } },
           total: { $sum: "$amount" },
           count: { $sum: 1 }
         }
@@ -79,20 +83,6 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
       .limit(5)
       .select("amount category description date"),
 
-    // Last month comparison (previous period)
-    Expense.aggregate([
-      {
-        $match: {
-          user: new mongoose.Types.ObjectId(userId),
-          date: {
-            $gte: subMonths(startDate, 1),
-            $lt: startDate
-          }
-        }
-      },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
-    ]),
-
     // Largest single expense
     Expense.findOne(baseQuery)
       .sort({ amount: -1 })
@@ -101,7 +91,6 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
 
   const totalExpenses = totalExpensesResult[0]?.total || 0;
   const totalTransactions = totalExpensesResult[0]?.count || 0;
-  const lastMonthTotal = lastMonthData[0]?.total || 0;
 
   // Calculate average daily expense
   const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -109,11 +98,6 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
 
   // Find favorite category
   const favoriteCategory = categoryData[0]?._id || "None";
-
-  // Calculate percentage change
-  const percentageChange = lastMonthTotal > 0
-    ? ((totalExpenses - lastMonthTotal) / lastMonthTotal) * 100
-    : 0;
 
   // Format monthly data
   const formattedMonthlyData = monthlyData.map(item => ({
@@ -125,6 +109,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
 
   // Format category data with percentages
   const formattedCategoryData = categoryData.map(item => ({
+    name: item._id, // Add name property for Recharts consistency
     category: item._id,
     amount: item.total,
     percentage: totalExpenses > 0 ? (item.total / totalExpenses) * 100 : 0,
@@ -191,6 +176,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
       monthlyBudget: user.monthlyBudget || 0
     },
     monthlySummary: formattedMonthlyData,
+    dailySummary: [],
     categoryBreakdown: formattedCategoryData,
     recentTransactions: formattedRecentTransactions,
     currentMonth: {
