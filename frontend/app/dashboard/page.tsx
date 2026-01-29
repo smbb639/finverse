@@ -174,18 +174,18 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Quick Stats Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-0 shadow-lg">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-100">Remaining Balance</CardTitle>
-                <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <IndianRupee className="h-4 w-4 text-white" />
+                <CardTitle className="text-sm font-medium">Remaining Balance</CardTitle>
+                <div className="p-1.5 rounded-md bg-blue-50 text-blue-600">
+                  <IndianRupee className="h-4 w-4" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">
+                <div className="text-2xl font-bold">
                   {formatCurrency((dashboardData?.stats?.monthlyBudget || 0) - (dashboardData?.currentMonth?.total || 0))}
                 </div>
-                <div className="flex items-center mt-2 text-xs text-blue-100 italic">
+                <div className="flex items-center mt-1 text-xs text-muted-foreground">
                   Budget: {formatCurrency(dashboardData?.stats?.monthlyBudget || 0)}
                 </div>
               </CardContent>

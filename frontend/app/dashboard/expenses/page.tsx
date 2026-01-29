@@ -305,29 +305,51 @@ export default function ExpensesPage() {
       </div>
 
       {/* Main Content Area */}
-      <Card className="border-0 shadow-md">
-        <CardHeader className="border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4 p-6">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+      <Card className="border-0 shadow-lg overflow-hidden bg-white/80 backdrop-blur-sm ring-1 ring-slate-100">
+        <CardHeader className="border-b border-slate-100/50 bg-slate-50/30 flex flex-col md:flex-row md:items-center justify-between gap-4 p-5">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+            <div className="relative flex-1 max-w-sm group">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Search className="h-4.5 w-4.5 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+              </div>
               <Input
-                placeholder="Search description..."
-                className="pl-10 bg-slate-50 border-slate-100 focus:bg-white transition-all"
+                placeholder="Search by description or category..."
+                className="pl-11 h-11 bg-white border-slate-200 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all rounded-2xl text-[15px] placeholder:text-slate-400"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-[1px] bg-slate-200 hidden sm:block mx-1" />
               <select
-                className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white outline-none"
+                className="h-11 text-[15px] font-semibold border border-slate-200 rounded-2xl px-5 py-2 bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer text-slate-600 appearance-none min-w-[160px] shadow-sm hover:border-slate-300"
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value === 'all' ? undefined : e.target.value }))}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 1rem center',
+                  backgroundSize: '1rem'
+                }}
               >
-                <option value="all">Categories</option>
+                <option value="all">All Categories</option>
                 {CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-slate-600 border-slate-200 hover:bg-slate-50 h-11 rounded-xl px-4 font-semibold shadow-sm"
+              onClick={() => {
+                alert('Exporting data as CSV...');
+              }}
+            >
+              <Download className="h-4 w-4 mr-2 text-slate-400" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="p-0">
