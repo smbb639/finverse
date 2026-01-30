@@ -13,6 +13,7 @@ const dashboardRouter = Router();
 dashboardRouter.use(protect);
 
 // Main dashboard endpoint
+
 dashboardRouter.get("/", getDashboard);
 
 // Spending trends over time

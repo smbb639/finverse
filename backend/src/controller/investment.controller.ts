@@ -37,7 +37,6 @@ export const getInvestments = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
 try {
   const investments = await Investment.find({ user: userId });
-  console.log("HIiiii")
 
   const enriched = await Promise.all(
     investments.map(async (inv) => {

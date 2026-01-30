@@ -25,9 +25,12 @@ export const protect = (
       process.env.JWT_SECRET as string
     ) as { userId: string };
 
+
+
     req.user = {
       id: decoded.userId
     };
+   
     next();
   } catch {
     return res.status(401).json({ message: "Invalid token" });
