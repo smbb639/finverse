@@ -5,9 +5,10 @@ import authRouter from "./routes/auth.route";
 import expenseRouter from "./routes/expense.route";
 import dashboardRouter from "./routes/dashboard.route";
 import investmentRouter from "./routes/investment.route";
+import { connectDB } from "./config/db";
 
 dotenv.config();
-
+connectDB();
 const app: Application = express();
 const PORT = process.env.PORT || 9999;
 

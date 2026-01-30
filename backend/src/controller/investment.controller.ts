@@ -16,7 +16,38 @@ try {
     buyDate,
     type
   } = req.body;
+  const livePrice = await getLivePrice(symbol);
 
+  if(!livePrice || livePrice <=0) {
+    return res.status(400).json({
+      success: false,
+      message: "invalid symbol"
+    })
+  }
+
+  const existing = await Investment.findOne({
+      user: userId,
+      symbol
+    });
+     if (existing) {
+      const totalQuantity = existing.quantity + quantity;
+
+      const avgBuyPrice =
+      (existing.quantity * existing.buyPrice +
+        quantity * buyPrice) /
+      totalQuantity;
+
+      existing.buyPrice = Number(avgBuyPrice.toFixed(2));
+      existing.quantity = totalQuantity;
+      existing.updatedAt = new Date();
+
+      await existing.save();
+      return res.json({
+        success: true,
+        message: "Investment updated",
+        data: existing
+      });
+    } 
   const investment = await Investment.create({
     user: userId,
     symbol,
@@ -32,35 +63,49 @@ try {
     res.status(500).json({ success: false, message: err.message });
 }
 };
-
 export const getInvestments = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
-try {
-  const investments = await Investment.find({ user: userId });
 
-  const enriched = await Promise.all(
-    investments.map(async (inv) => {
-      const livePrice = await getLivePrice(inv.symbol);
+  try {
+    const investments = await Investment.find({ user: userId });
 
-      const pnl =
-        (livePrice - inv.buyPrice) * inv.quantity;
+    const enriched = await Promise.all(
+      investments.map(async (inv) => {
+        try {
+          const livePrice = await getLivePrice(inv.symbol);
 
-      const pnlPercent =
-        ((livePrice - inv.buyPrice) / inv.buyPrice) * 100;
+          const pnl =
+            (livePrice - inv.buyPrice) * inv.quantity;
 
-      return {
-        ...inv.toObject(),
-        currentPrice: livePrice,
-        pnl,
-        pnlPercent
-      };
-    })
-  );
+          const pnlPercent =
+            ((livePrice - inv.buyPrice) / inv.buyPrice) * 100;
 
-  res.json({ success: true, data: enriched });
-        } catch (err: any) {
-            res.status(500).json({ success: false, message: err.message });
+          return {
+            ...inv.toObject(),
+            currentPrice: livePrice,
+            pnl,
+            pnlPercent
+          };
+        } catch {
+          // 🔥 If price fails, don’t crash portfolio
+          return {
+            ...inv.toObject(),
+            currentPrice: null,
+            pnl: null,
+            pnlPercent: null,
+            priceError: true
+          };
         }
+      })
+    );
+
+    res.json({ success: true, data: enriched });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch investments"
+    });
+  }
 };
 
 export const updateInvestment = async (req: AuthRequest, res: Response) => {

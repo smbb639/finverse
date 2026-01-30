@@ -21,11 +21,16 @@ const investmentSchema = new Schema(
       required: true
     },
 
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1
-    },
+   quantity: {
+  type: Number,
+  required: true,
+  min: 1,
+  validate: {
+    validator: Number.isInteger,
+    message: "Quantity must be an integer"
+  }
+}
+,
 
     buyPrice: {
       type: Number,
@@ -34,7 +39,6 @@ const investmentSchema = new Schema(
 
     currentPrice: {
       type: Number,
-      default: 0
     },
 
     buyDate: {

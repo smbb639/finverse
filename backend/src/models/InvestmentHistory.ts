@@ -23,7 +23,12 @@ const investmentHistorySchema = new Schema(
     pnl: Number,          
     pnlPercent: Number,  
 
-    type: String
+    type: {
+    type: String,
+    enum: ["BUY", "SELL"],
+    default: "BUY",
+}
+
   },
   { timestamps: true }
 );
