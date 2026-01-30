@@ -10,7 +10,7 @@ import Expense from "../models/Expense";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from "date-fns";
 export const getDashboard = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -41,7 +41,7 @@ export const getDashboard = async (req: AuthRequest, res: Response) => {
 
 export const getTrends = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -65,7 +65,7 @@ export const getTrends = async (req: AuthRequest, res: Response) => {
 
 export const getCategoryAnalysis = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     const { category } = req.params;
 
     if (!userId) {
@@ -92,7 +92,7 @@ export const getCategoryAnalysis = async (req: AuthRequest, res: Response) => {
 
 export const getQuickStats = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }

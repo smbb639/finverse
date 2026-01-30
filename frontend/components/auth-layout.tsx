@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { DollarSign, CheckCircle2, TrendingUp, Shield, PieChart } from 'lucide-react';
+import { IndianRupee, CheckCircle2, TrendingUp, Shield, PieChart } from 'lucide-react';
 
 export default function AuthLayout({
     children,
@@ -27,7 +27,7 @@ export default function AuthLayout({
                 <div className="relative z-10">
                     <Link href="/" className="flex items-center gap-2 text-2xl font-bold hover:opacity-80 transition-opacity">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg">
-                            <DollarSign className="h-7 w-7" />
+                            <IndianRupee className="h-7 w-7" />
                         </div>
                         Finverse
                     </Link>
@@ -71,7 +71,7 @@ export default function AuthLayout({
                 {/* Mobile Logo */}
                 <Link href="/" className="absolute top-6 left-6 lg:hidden flex items-center gap-2 text-white z-20">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
-                        <DollarSign className="h-6 w-6" />
+                        <IndianRupee className="h-6 w-6" />
                     </div>
                     <span className="text-xl font-bold">Finverse</span>
                 </Link>

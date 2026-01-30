@@ -13,7 +13,7 @@ import User from "../models/User";
 export const addExpense = async (req: AuthRequest, res: Response) => {
   try {
     const { amount, category, description, date } = req.body;
-    const userId = req.userId;
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -42,7 +42,7 @@ export const addExpense = async (req: AuthRequest, res: Response) => {
 
 export const getAllExpenses = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -70,7 +70,7 @@ export const getAllExpenses = async (req: AuthRequest, res: Response) => {
 
 export const getExpense = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     if (!userId) {
@@ -91,7 +91,7 @@ export const getExpense = async (req: AuthRequest, res: Response) => {
 
 export const updateExpenseController = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     const { id } = req.params;
     const { amount, category, description, date } = req.body;
 
@@ -122,7 +122,7 @@ export const updateExpenseController = async (req: AuthRequest, res: Response) =
 
 export const removeExpense = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     const { id } = req.params;
 
     if (!userId) {
@@ -145,7 +145,7 @@ export const removeExpense = async (req: AuthRequest, res: Response) => {
 
 export const getSummary = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId;
+    const userId = req.user?.id;
     const { startDate, endDate } = req.query;
 
     if (!userId) {
@@ -167,7 +167,7 @@ export const getSummary = async (req: AuthRequest, res: Response) => {
 export const updateBudget = async (req: AuthRequest, res: Response) => {
   try {
     const { monthlyBudget } = req.body;
-    const userId = req.userId;
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(402).json({ message: "Unauthorized" });

@@ -1,19 +1,36 @@
-import app from './app';
-import dotenv from 'dotenv';
-import { connectDB } from './config/db';
+import express, { Application } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import authRouter from "./routes/auth.route";
+import expenseRouter from "./routes/expense.route";
+import dashboardRouter from "./routes/dashboard.route";
+import investmentRouter from "./routes/investment.route";
 
 dotenv.config();
 
-const PORT = process.env.PORT;
+const app: Application = express();
+const PORT = process.env.PORT || 9999;
 
-async function connection() {
-  await connectDB();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log("Hello backend")
-    
+
+app.use("/api/auth", authRouter);
+app.use("/api/investment", investmentRouter);
+app.use("/api/dashboard", dashboardRouter);
+app.use("/api/expenses", expenseRouter);
+
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Server is running" });
+});
+
+
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error("GLOBAL ERROR:", err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
-}
-
-connection();
+});
+console.log("Server is running on port", PORT);

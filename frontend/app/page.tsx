@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/auth';
-import { ArrowRight, TrendingUp, Shield, Zap, DollarSign, PieChart, Wallet } from 'lucide-react';
+import { ArrowRight, TrendingUp, Shield, Zap, IndianRupee, PieChart, Wallet } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-white" />
+                <IndianRupee className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold text-white">Finverse</span>
             </div>
