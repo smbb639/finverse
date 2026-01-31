@@ -69,7 +69,7 @@ export const getLivePrice = async (symbol: string): Promise<number> => {
 };
 
 export const searchSymbols = async (query: string) => {
-  if (!query || query.length < 2) return [];
+  if (!query || query.length < 1) return [];
 
   const res = await axios.get(
     "https://query2.finance.yahoo.com/v1/finance/search",

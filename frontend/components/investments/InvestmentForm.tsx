@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { Investment } from '@/lib/investment';
 import { X } from 'lucide-react';
-
+import { searchSymbols } from '@/lib/api';
 interface InvestmentFormProps {
   investment?: Investment;
   onSubmit: (data: any) => Promise<void>;
@@ -21,6 +21,9 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
   });
 
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchMode, setSearchMode] = useState<'symbol' | 'name'>('symbol');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +49,35 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
       [e.target.name]: e.target.value,
     });
   };
+  
+useEffect(() => {
+  const query =
+    searchMode === 'symbol'|| searchMode === 'name'
+      ? formData.symbol.trim()
+      : formData.name.trim();
+
+  if (query.length < 3) {
+    setSuggestions([]);
+    setShowSuggestions(false);
+    return;
+  }
+
+  const timer = setTimeout(async () => {
+    try {
+      const data = await searchSymbols(query);
+      setSuggestions(data);
+      setShowSuggestions(true);
+    } catch (err) {
+      console.error("Search failed", err);
+      setSuggestions([]);
+    }
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [formData.symbol, formData.name, searchMode]);
+
+
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -65,40 +97,53 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Symbol *
-                </label>
-                <input
-                  type="text"
-                  name="symbol"
-                  value={formData.symbol}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., AAPL"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type *
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="STOCK">Stock</option>
-                  <option value="MF">Mutual Fund</option>
-                  <option value="ETF">ETF</option>
-                  <option value="CRYPTO">Crypto</option>
-                  <option value="OTHER">Other</option>
-                </select>
-              </div>
-            </div>
+           <div className="space-y-4">
+         <div className="relative">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Symbol *
+  </label>
+
+  <input
+    type="text"
+    value={formData.symbol}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        symbol: e.target.value.toUpperCase(),
+      })
+    }
+    onFocus={() => setShowSuggestions(true)}
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    placeholder="e.g., AAPL"
+    required
+  />
+
+  {showSuggestions && suggestions.length > 0 && (
+    <div className="absolute z-[1000] mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-56 overflow-auto">
+      {suggestions.map((s) => (
+        <button
+          key={s.symbol}
+          type="button"
+          className="w-full px-4 py-3 text-left hover:bg-blue-50 flex justify-between"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setFormData({
+              ...formData,
+              symbol: s.symbol,
+              name: s.name,
+            });
+            setShowSuggestions(false);
+          }}
+        >
+          <span className="font-semibold text-gray-900">{s.symbol}</span>
+          <span className="text-sm text-gray-500">{s.name}</span>
+        </button>
+      ))}
+    </div>
+  )}
+</div>   {/* ✅ THIS WAS MISSING */}
+
+
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

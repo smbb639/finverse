@@ -37,4 +37,9 @@ api.interceptors.response.use(
   }
 );
 
+export const searchSymbols = async (q: string) => {
+  const res = await api.get(`/investment/search-symbols?q=${q}`);
+  return res.data.data;
+};
+
 export default api;
