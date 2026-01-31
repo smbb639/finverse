@@ -3,6 +3,7 @@ import { Investment } from "../models/Investment";
 import { InvestmentHistory } from "../models/InvestmentHistory";
 import { getLivePrice } from "../services/marketPrice.services";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { searchSymbols } from "../services/marketPrice.services";
 
 export const addInvestment = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
@@ -168,3 +169,24 @@ try {
             res.status(500).json({ success: false, message: err.message });
         }
 };
+
+export const searchInvestmentSymbols = async (req: AuthRequest, res: Response) => {
+  try {
+    let q = String(req.query.q || "")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, ""); 
+
+    if (q.length < 2) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const results = await searchSymbols(q);
+
+    res.json({ success: true, data: results });
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ success: false, message: "Search failed" });
+  }
+};
+

@@ -67,3 +67,40 @@ export const getLivePrice = async (symbol: string): Promise<number> => {
     throw new Error("Invalid symbol");
   }
 };
+
+export const searchSymbols = async (query: string) => {
+  if (!query || query.length < 2) return [];
+
+  const res = await axios.get(
+    "https://query2.finance.yahoo.com/v1/finance/search",
+    {
+      params: {
+        q: query,
+        quotesCount: 10,
+        newsCount: 0,
+        enableFuzzyQuery: true,
+        lang: "en-IN",
+        region: "IN", 
+      },
+      headers: {
+        "User-Agent": "Morzilla/5.0",
+      }
+    }
+  );
+  console.log("🟡 Yahoo raw quotes:" , res.data?.quotes);
+  return (
+    res.data?.quotes
+      ?.filter(
+        (q: any) =>
+          q.symbol &&
+          q.shortname &&
+          (q.exchDisp === "NSE" || q.exchDisp === "BSE")
+      )
+      .map((q: any) => ({
+        symbol: q.symbol.replace(".NS", "").replace(".BO", ""),
+        name: q.shortname,
+      })) || []
+  );
+};
+
+
