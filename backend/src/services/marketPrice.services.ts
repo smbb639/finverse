@@ -76,7 +76,7 @@ export const searchSymbols = async (query: string) => {
     {
       params: {
         q: query,
-        quotesCount: 10,
+        quotesCount: 8,
         newsCount: 0,
         enableFuzzyQuery: true,
         lang: "en-IN",
