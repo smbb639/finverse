@@ -25,10 +25,11 @@ export default function InvestmentsPage() {
   }, []);
 
   const fetchInvestments = async (showLoader = true) => {
-    if (showLoader) {
-      setLoading(true);
-    } else setRefreshing(true);
+    if (showLoader) setLoading(true);
+    else setRefreshing(true);
+    
     setError(null);
+    
     try {
       const data = await investmentService.getInvestments();
       setInvestments(data);
@@ -42,40 +43,41 @@ export default function InvestmentsPage() {
   };
 
   const handleAddInvestment = async (data: any) => {
-    try{
-    await investmentService.addInvestment(data);
-    await fetchInvestments(false);
-    setShowForm(false);
-    setEditingInvestment(null);
-  } catch (error) {
-    console.error('Error adding investment:', error);
-    throw error;
-  }
+    try {
+      await investmentService.addInvestment(data);
+      await fetchInvestments(false);
+      setShowForm(false);
+      setEditingInvestment(null);
+    } catch (error) {
+      console.error('Error adding investment:', error);
+      throw error; // Let the form handle the error
+    }
   };
 
   const handleEditInvestment = async (id: string, updates: any) => {
-    try{
-    await investmentService.updateInvestment(id, updates);
-    await fetchInvestments(false);
-    setShowForm(false);
-    setEditingInvestment(null);
-  } catch (error) {
-    console.error('Error updating investment:', error);
-    throw error;
-  }
+    try {
+      await investmentService.updateInvestment(id, updates);
+      await fetchInvestments(false);
+      setShowForm(false);
+      setEditingInvestment(null);
+    } catch (error) {
+      console.error('Error updating investment:', error);
+      throw error; // Let the form handle the error
+    }
   };
 
   const handleSellInvestment = async (id: string, sellPrice: number, sellDate: string) => {
-    try{
-    await investmentService.sellInvestment(id, sellPrice, sellDate);
-    await fetchInvestments(false);
+    try {
+      await investmentService.sellInvestment(id, sellPrice, sellDate);
+      await fetchInvestments(false);
     } catch (error) {
-    console.error('Error selling investment:', error);
-    setError('Failed to sell investment. Please try again.');
-  }
+      console.error('Error selling investment:', error);
+      setError('Failed to sell investment. Please try again.');
+    }
   };
 
-  const  filteredInvestments = investments
+  // Filter and search investments
+  const filteredInvestments = investments
     .filter(inv => filter === 'all' || inv.type === filter)
     .filter(inv => {
       if (!searchQuery) return true;
@@ -89,7 +91,7 @@ export default function InvestmentsPage() {
   const assetTypes = ['STOCK', 'MF', 'ETF', 'CRYPTO', 'OTHER'];
 
   return (
-   <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-40">
         <div className="px-4 sm:px-6 lg:px-8 py-6">
@@ -187,7 +189,7 @@ export default function InvestmentsPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl text-sm font-semibold text-gray-700">
-                {filteredInvestments.length} {filteredInvestments.length === 1 ? 'Investment' : 'Investments'}
+                {filteredInvestments.length} {filteredInvestments.length === 1 ? 'Holding' : 'Holdings'}
               </div>
               {(filter !== 'all' || searchQuery) && (
                 <button
