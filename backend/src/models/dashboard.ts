@@ -9,7 +9,7 @@ export interface DashboardStats {
 
 export interface MonthlySummary {
   month: string;
-  year: number;
+  year: number; 
   total: number;
   transactions: number;
 }
