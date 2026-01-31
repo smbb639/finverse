@@ -18,13 +18,13 @@ export const getLivePrice = async (symbol: string): Promise<number> => {
   const cacheKey = symbol.toUpperCase();
   const cached = priceCache.get(cacheKey);
 
-  // 1️⃣ Return cached price if valid
+  //  Return cached price if valid
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     return cached.price;
   }
 
   try {
-    // 2️⃣ Fetch NSE & BSE in parallel
+    //  Fetch NSE & BSE in parallel
     const [nsRes, boRes] = await Promise.allSettled([
       axios.get(
         `https://query1.finance.yahoo.com/v8/finance/chart/${cacheKey}.NS`
@@ -36,12 +36,12 @@ export const getLivePrice = async (symbol: string): Promise<number> => {
 
     let price: number | null = null;
 
-    // 3️⃣ Prefer NSE price
+    // 3️ Prefer NSE price
     if (nsRes.status === "fulfilled") {
       price = extractPrice(nsRes.value);
     }
 
-    // 4️⃣ Fallback to BSE
+    // 4️ Fallback to BSE
     if (!price && boRes.status === "fulfilled") {
       price = extractPrice(boRes.value);
     }
@@ -51,7 +51,7 @@ export const getLivePrice = async (symbol: string): Promise<number> => {
 }
 
 
-    // 5️⃣ Cache result
+    //  Cache result
     priceCache.set(cacheKey, {
       price,
       timestamp: Date.now(),
@@ -59,7 +59,7 @@ export const getLivePrice = async (symbol: string): Promise<number> => {
 
     return price;
   } catch (error) {
-    // 6️⃣ Fallback to cache if API fails
+    //  Fallback to cache if API fails
     if (cached) {
       return cached.price;
     }
