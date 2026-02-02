@@ -50,6 +50,6 @@ export const investmentService = {
 
   // Sell/Delete an investment
   async sellInvestment(id: string, sellPrice: number, sellDate: string): Promise<void> {
-    await api.delete(`/investment/${id}`, { data: { sellPrice, sellDate } });
+    await api.post(`/investment/${id}`, { data: { sellPrice, sellDate } });
   },
 };

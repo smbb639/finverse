@@ -128,47 +128,48 @@ try {
             res.status(500).json({ success: false, message: err.message });
         }
 };
-export const deleteInvestment = async (req: AuthRequest, res: Response) => {
+export const sellInvestment = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const { sellPrice, sellDate } = req.body;
   const userId = req.user?.id;
-try {
-  const investment = await Investment.findOne({
-    _id: id,
-    user: userId
-  });
 
-  if (!investment) {
-    return res.status(404).json({ message: "Not found" });
+  if (!sellPrice || !sellDate) {
+    return res.status(400).json({ message: 'Sell price and date required' });
   }
 
-  const pnl =
-    (sellPrice - investment.buyPrice) * investment.quantity;
+  try {
+    const investment = await Investment.findOne({ _id: id, user: userId });
 
-  const pnlPercent =
-    ((sellPrice - investment.buyPrice) / investment.buyPrice) * 100;
+    if (!investment) {
+      return res.status(404).json({ message: 'Not found' });
+    }
 
-  await InvestmentHistory.create({
-    user: userId,
-    symbol: investment.symbol,
-    name: investment.name,
-    quantity: investment.quantity,
-    buyPrice: investment.buyPrice,
-    sellPrice,
-    buyDate: investment.buyDate,
-    sellDate,
-    pnl,
-    pnlPercent,
-    type: investment.type
-  });
+    const pnl = (sellPrice - investment.buyPrice) * investment.quantity;
+    const pnlPercent =
+      ((sellPrice - investment.buyPrice) / investment.buyPrice) * 100;
 
-  await investment.deleteOne();
+    await InvestmentHistory.create({
+      user: userId,
+      symbol: investment.symbol,
+      name: investment.name,
+      quantity: investment.quantity,
+      buyPrice: investment.buyPrice,
+      sellPrice,
+      buyDate: investment.buyDate,
+      sellDate,
+      pnl,
+      pnlPercent,
+      type: investment.type
+    });
 
-  res.json({ success: true, message: "Investment exited" });
-        } catch (err: any) {
-            res.status(500).json({ success: false, message: err.message });
-        }
+    await investment.deleteOne();
+
+    res.json({ success: true, message: 'Investment exited' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };
+
 
 export const searchInvestmentSymbols = async (req: AuthRequest, res: Response) => {
   try {
