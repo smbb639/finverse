@@ -30,7 +30,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white h-screen">
+    <div className="flex flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white h-screen sticky top-0">
       {/* Logo */}
       <div className="p-6 border-b border-blue-800">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -56,8 +56,8 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-blue-200 hover:bg-white/10 hover:text-white'
+                  ? 'bg-white/20 text-white shadow-lg'
+                  : 'text-blue-200 hover:bg-white/10 hover:text-white'
                   }`}
               >
                 <Icon className="w-5 h-5" />
