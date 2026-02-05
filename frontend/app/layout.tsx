@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Finverse - Your Complete Finance Platform",
+  title: "Finverse",
   description: "Track expenses, manage portfolio, and grow your financial knowledge",
 };
 

@@ -43,6 +43,12 @@ export interface DashboardStats {
     total: number;
     count: number;
     comparedToLastMonth: number;
+    categoryBreakdown: Array<{
+      category: string;
+      amount: number;
+      percentage: number;
+      count: number;
+    }>;
   };
 }
 
@@ -94,6 +100,25 @@ export const dashboardService = {
 
   async getCategoryInsights(category: string) {
     const response = await api.get<{ success: boolean; data: any }>(`/dashboard/category/${category}`);
+    return response.data.data;
+  },
+
+  async getCategoryBreakdown(period: 'daily' | 'weekly' | 'monthly' | 'currentMonth' = 'currentMonth') {
+    const response = await api.get<{
+      success: boolean;
+      data: {
+        categoryBreakdown: Array<{
+          category: string;
+          amount: number;
+          percentage: number;
+          count: number;
+        }>;
+        total: number;
+        period: string;
+        startDate: string;
+        endDate: string;
+      }
+    }>(`/dashboard/category-breakdown?period=${period}`);
     return response.data.data;
   },
 };

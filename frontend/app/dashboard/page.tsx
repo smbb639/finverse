@@ -86,6 +86,14 @@ export default function DashboardPage() {
     queryFn: () => dashboardService.getQuickStats(),
   });
 
+  // Category breakdown period state
+  const [breakdownPeriod, setBreakdownPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'currentMonth'>('currentMonth');
+
+  const { data: categoryBreakdownData, isLoading: loadingBreakdown } = useQuery({
+    queryKey: ['category-breakdown', breakdownPeriod],
+    queryFn: () => dashboardService.getCategoryBreakdown(breakdownPeriod),
+  });
+
   const loading = loadingDashboard || loadingStats;
 
   if (loading) {
@@ -345,7 +353,7 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              
+
             </CardContent>
           </Card>
         </div>
@@ -354,63 +362,118 @@ export default function DashboardPage() {
         <div className="space-y-8">
           {/* Category Breakdown */}
           <Card>
-            <CardHeader>
-              <CardTitle>Category Breakdown</CardTitle>
-              <CardDescription>Spending by category</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div className="space-y-1.5">
+                <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">Category Breakdown</CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="w-1 h-3 bg-blue-500 rounded-full" />
+                  <select
+                    value={breakdownPeriod}
+                    onChange={(e) => setBreakdownPeriod(e.target.value as typeof breakdownPeriod)}
+                    className="text-xs font-semibold text-slate-600 uppercase tracking-widest bg-transparent border-none outline-none cursor-pointer hover:text-blue-600 transition-colors appearance-none pr-4"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', backgroundSize: '12px' }}
+                  >
+                    <option value="currentMonth">Current Month</option>
+                    <option value="monthly">Last 30 Days</option>
+                    <option value="weekly">Last 7 Days</option>
+                    <option value="daily">Today</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <div className="whitespace-nowrap px-4 py-2 rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-100 text-blue-600 text-[11px] font-black uppercase tracking-wider shadow-sm flex items-center gap-2.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", loadingBreakdown ? "bg-amber-400" : "bg-blue-400")}></span>
+                    <span className={cn("relative inline-flex rounded-full h-2 w-2", loadingBreakdown ? "bg-amber-600" : "bg-blue-600")}></span>
+                  </span>
+                  {breakdownPeriod === 'currentMonth' && format(new Date(), 'MMMM yyyy')}
+                  {breakdownPeriod === 'monthly' && 'Last 30 Days'}
+                  {breakdownPeriod === 'weekly' && 'Last 7 Days'}
+                  {breakdownPeriod === 'daily' && 'Today'}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart margin={{ top: 20, bottom: 20 }}>
-                    <Pie
-                      data={dashboardData?.categoryBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      nameKey="category"
-                      labelLine={false}
-                      label={({ cx, cy, midAngle = 0, innerRadius = 0, outerRadius = 80, percent }) => {
-                        if (percent < 0.05) return null; // Don't show labels for tiny slices
-                        const radius = Number(innerRadius) + (Number(outerRadius) - Number(innerRadius)) * 0.6;
-                        const x = Number(cx) + radius * Math.cos(-midAngle * (Math.PI / 180));
-                        const y = Number(cy) + radius * Math.sin(-midAngle * (Math.PI / 180));
-                        return (
-                          <text
-                            x={x}
-                            y={y}
-                            fill="white"
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            className="text-[12px] font-bold"
-                          >
-                            {`${(percent * 100).toFixed(0)}%`}
-                          </text>
-                        );
-                      }}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="amount"
-                      stroke="none"
-                    >
-                      {dashboardData?.categoryBreakdown?.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || '#64748B'}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      align="center"
-                      iconType="circle"
-                      layout="horizontal"
-                      wrapperStyle={{ paddingTop: '20px' }}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+              <div className="h-80 relative group">
+                {/* Central Statistics Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none translate-y-[-10px] z-10">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total</span>
+                  {loadingBreakdown ? (
+                    <Skeleton className="h-8 w-24 my-1" />
+                  ) : (
+                    <span className="text-2xl font-black text-slate-900">
+                      {formatCurrency(categoryBreakdownData?.total || 0).split('.')[0]}
+                    </span>
+                  )}
+                  <span className="text-[10px] font-medium text-slate-400">
+                    {breakdownPeriod === 'currentMonth' && 'This Month'}
+                    {breakdownPeriod === 'monthly' && 'Last 30 Days'}
+                    {breakdownPeriod === 'weekly' && 'Last 7 Days'}
+                    {breakdownPeriod === 'daily' && 'Today'}
+                  </span>
+                </div>
+
+                {loadingBreakdown ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : (categoryBreakdownData?.categoryBreakdown?.length || 0) === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                    <PieChart className="h-12 w-12 mb-2 opacity-30" />
+                    <span className="text-sm font-medium">No expenses in this period</span>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart margin={{ top: 0, bottom: 20 }}>
+                      <Pie
+                        data={categoryBreakdownData?.categoryBreakdown || []}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={65}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        cornerRadius={6}
+                        nameKey="category"
+                        dataKey="amount"
+                        stroke="none"
+                        animationBegin={0}
+                        animationDuration={800}
+                      >
+                        {(categoryBreakdownData?.categoryBreakdown || []).map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={CATEGORY_COLORS[entry.category as keyof typeof CATEGORY_COLORS] || '#64748B'}
+                            className="hover:opacity-80 transition-opacity cursor-pointer outline-none"
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value: any) => [formatCurrency(Number(value)), 'Spent']}
+                        contentStyle={{
+                          borderRadius: '16px',
+                          border: '1px solid #f1f5f9',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                          padding: '12px'
+                        }}
+                        itemStyle={{ fontWeight: 'bold' }}
+                      />
+                      <Legend
+                        verticalAlign="bottom"
+                        align="center"
+                        iconType="circle"
+                        layout="horizontal"
+                        wrapperStyle={{
+                          paddingTop: '20px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.025em'
+                        }}
+                        formatter={(value) => <span className="text-slate-600">{value}</span>}
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </CardContent>
           </Card>
