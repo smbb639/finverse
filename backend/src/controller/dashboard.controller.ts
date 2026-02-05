@@ -178,3 +178,76 @@ export const getQuickStats = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
+export const getCategoryBreakdown = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { period } = req.query;
+    const now = new Date();
+    let startDate: Date;
+    let endDate: Date = endOfDay(now);
+
+    switch (period) {
+      case 'daily':
+        startDate = startOfDay(now);
+        break;
+      case 'weekly':
+        startDate = subDays(startOfDay(now), 6);
+        break;
+      case 'monthly':
+        startDate = subDays(startOfDay(now), 29);
+        break;
+      case 'currentMonth':
+      default:
+        startDate = startOfMonth(now);
+        endDate = endOfMonth(now);
+        break;
+    }
+
+    const categoryData = await Expense.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(userId),
+          date: { $gte: startDate, $lte: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$amount" },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { total: -1 } }
+    ]);
+
+    const totalAmount = categoryData.reduce((acc, item) => acc + item.total, 0);
+
+    const formattedData = categoryData.map(item => ({
+      category: item._id,
+      amount: item.total,
+      percentage: totalAmount > 0 ? (item.total / totalAmount) * 100 : 0,
+      count: item.count
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        categoryBreakdown: formattedData,
+        total: totalAmount,
+        period: period || 'currentMonth',
+        startDate,
+        endDate
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

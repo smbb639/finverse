@@ -129,7 +129,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
   const currentMonthStart = startOfMonth(new Date());
   const currentMonthEnd = endOfMonth(new Date());
 
-  const currentMonthData = await Expense.aggregate([
+  const currentMonthDataResult = await Expense.aggregate([
     {
       $match: {
         user: new mongoose.Types.ObjectId(userId),
@@ -139,8 +139,32 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
   ]);
 
-  const currentMonthTotal = currentMonthData[0]?.total || 0;
-  const currentMonthCount = currentMonthData[0]?.count || 0;
+  const currentMonthCategories = await Expense.aggregate([
+    {
+      $match: {
+        user: new mongoose.Types.ObjectId(userId),
+        date: { $gte: currentMonthStart, $lte: currentMonthEnd }
+      }
+    },
+    {
+      $group: {
+        _id: "$category",
+        total: { $sum: "$amount" },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { total: -1 } }
+  ]);
+
+  const currentMonthTotal = currentMonthDataResult[0]?.total || 0;
+  const currentMonthCount = currentMonthDataResult[0]?.count || 0;
+
+  const formattedCurrentMonthCategories = currentMonthCategories.map(item => ({
+    category: item._id,
+    amount: item.total,
+    percentage: currentMonthTotal > 0 ? (item.total / currentMonthTotal) * 100 : 0,
+    count: item.count
+  }));
 
   // Previous month for comparison
   const previousMonthStart = startOfMonth(subMonths(new Date(), 1));
@@ -183,7 +207,8 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     currentMonth: {
       total: currentMonthTotal,
       count: currentMonthCount,
-      comparedToLastMonth: parseFloat(monthComparison.toFixed(2))
+      comparedToLastMonth: parseFloat(monthComparison.toFixed(2)),
+      categoryBreakdown: formattedCurrentMonthCategories
     },
     period: {
       startDate,
