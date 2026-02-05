@@ -27,14 +27,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Search Bar */}
           <div className="flex-1 max-w-2xl">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="search"
-                placeholder="Search investments, symbols, or categories..."
-                className="w-full pl-12 pr-4 py-3 bg-gray-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white"
-              />
-            </div>
+            
           </div>
 
           {/* Right Section */}

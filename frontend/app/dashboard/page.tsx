@@ -133,10 +133,6 @@ export default function DashboardPage() {
             <Download className="h-4 w-4" />
             Export
           </Button>
-          <Button className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600">
-            <Plus className="h-4 w-4" />
-            Add Expense
-          </Button>
         </div>
       </div>
 
