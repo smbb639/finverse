@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.route";
 import expenseRouter from "./routes/expense.route";
 import dashboardRouter from "./routes/dashboard.route";
 import investmentRouter from "./routes/investment.route";
+import marketRouter from "./routes/market.route";
 import { connectDB } from "./config/db";
 import newsRouter from "./routes/news.routes";
 
@@ -22,7 +23,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/investment", investmentRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/expenses", expenseRouter);
-app.use("/api/news", newsRouter)
+app.use("/api/news", newsRouter);
+app.use("/api/market", marketRouter);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
