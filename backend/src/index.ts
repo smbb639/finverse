@@ -8,17 +8,27 @@ import investmentRouter from "./routes/investment.route";
 import marketRouter from "./routes/market.route";
 import { connectDB } from "./config/db";
 import newsRouter from "./routes/news.routes";
+import chatRoutes from "./routes/chat.routes";
 
 dotenv.config();
 connectDB();
-const app: Application = express();
+const allowedOrigins = ['http://localhost:3000']
+const app = express();
 const PORT = process.env.PORT;
+const corsOptions = {
+    origin: allowedOrigins,
+    credentials: true, // if you're using cookies or authorization headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    // allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: '*'
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+app.use("/api", chatRoutes);
 app.use("/api/auth", authRouter);
 app.use("/api/investment", investmentRouter);
 app.use("/api/dashboard", dashboardRouter);
