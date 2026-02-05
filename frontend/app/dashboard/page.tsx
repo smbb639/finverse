@@ -345,9 +345,7 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <Button variant="ghost" className="w-full mt-4">
-                View all transactions
-              </Button>
+              
             </CardContent>
           </Card>
         </div>

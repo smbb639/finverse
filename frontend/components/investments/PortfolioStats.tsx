@@ -1,7 +1,8 @@
 'use client';
 
 import { InvestmentWithMetrics } from '@/lib/investment';
-import { TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, Award } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, PieChart, BarChart3, Award } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 interface PortfolioStatsProps {
   investments: InvestmentWithMetrics[];
@@ -18,12 +19,12 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
     investments.forEach(inv => {
       const invested = inv.quantity * inv.buyPrice;
       const current = inv.currentPrice ? inv.quantity * inv.currentPrice : invested;
-      
+
       totalInvested += invested;
       currentValue += current;
-      
+
       typeBreakdown[inv.type] = (typeBreakdown[inv.type] || 0) + current;
-      
+
       if (inv.pnl && inv.pnl > 0) winners++;
       if (inv.pnl && inv.pnl < 0) losers++;
     });
@@ -77,18 +78,18 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-                <DollarSign className="w-5 h-5 text-white" />
+                <IndianRupee className="w-5 h-5 text-white" />
               </div>
               <p className="text-sm font-semibold text-gray-600">Portfolio Value</p>
             </div>
             <h3 className="text-3xl font-bold text-gray-900 mb-3">
-              ₹{(stats.currentValue / 100000).toFixed(2)}L
+              {formatCurrency(stats.currentValue)}
             </h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500">Invested</span>
                 <span className="text-sm font-semibold text-gray-700">
-                  ₹{(stats.totalInvested / 100000).toFixed(2)}L
+                  {formatCurrency(stats.totalInvested)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -98,7 +99,7 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
                 </span>
               </div>
               <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-2">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
                   style={{ width: `${Math.min((stats.currentValue / stats.totalInvested) * 100, 100)}%` }}
                 />
@@ -109,19 +110,17 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
       </div>
 
       {/* Total P&L Card */}
-      <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 transition-all group ${
-        isPositive 
-          ? 'border-green-200 hover:shadow-green-100' 
+      <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 transition-all group ${isPositive
+          ? 'border-green-200 hover:shadow-green-100'
           : 'border-red-200 hover:shadow-red-100'
-      } hover:shadow-xl`}>
+        } hover:shadow-xl`}>
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
-                isPositive 
-                  ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200' 
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${isPositive
+                  ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200'
                   : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-200'
-              }`}>
+                }`}>
                 {isPositive ? (
                   <TrendingUp className="w-5 h-5 text-white" />
                 ) : (
@@ -130,23 +129,21 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
               </div>
               <p className="text-sm font-semibold text-gray-600">Total P&L</p>
             </div>
-            <h3 className={`text-3xl font-bold mb-2 ${
-              isPositive ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {isPositive ? '+' : ''}₹{(Math.abs(stats.totalPnl) / 100000).toFixed(2)}L
+            <h3 className={`text-3xl font-bold mb-2 ${isPositive ? 'text-green-600' : 'text-red-600'
+              }`}>
+              {isPositive ? '+' : '-'}{formatCurrency(Math.abs(stats.totalPnl))}
             </h3>
             <div className="space-y-2">
-              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-semibold ${
-                isPositive 
-                  ? 'bg-green-50 text-green-700' 
+              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-semibold ${isPositive
+                  ? 'bg-green-50 text-green-700'
                   : 'bg-red-50 text-red-700'
-              }`}>
+                }`}>
                 {isPositive ? '↑' : '↓'} {stats.totalPnlPercent.toFixed(2)}%
               </div>
               <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-gray-500">Today's P&L</span>
+                <span className="text-xs text-gray-500">PnL Percentage</span>
                 <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {isPositive ? '+' : ''}₹{(Math.abs(stats.totalPnl) * 0.03 / 100000).toFixed(2)}L
+                  {isPositive ? '+' : '-'}{stats.totalPnlPercent.toFixed(2)}%
                 </span>
               </div>
             </div>
@@ -165,7 +162,7 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
             <p className="text-2xl font-bold text-gray-900">{Object.keys(stats.typeBreakdown).length} Types</p>
           </div>
         </div>
-        
+
         <div className="space-y-3">
           {Object.entries(stats.typeBreakdown)
             .sort(([, a], [, b]) => b - a)
@@ -179,9 +176,9 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
                     <span className="font-bold text-gray-900">{percentage}%</span>
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ 
+                      style={{
                         width: `${percentage}%`,
                         backgroundColor: getTypeColor(type)
                       }}
@@ -215,7 +212,7 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
               <span className="font-bold text-green-600">{stats.winners} / {investments.length}</span>
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${stats.winRate}%` }}
               />
@@ -231,7 +228,7 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
               <span className="font-bold text-red-600">{stats.losers} / {investments.length}</span>
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-gradient-to-r from-red-500 to-rose-500 rounded-full transition-all duration-500"
                 style={{ width: `${(stats.losers / investments.length) * 100}%` }}
               />

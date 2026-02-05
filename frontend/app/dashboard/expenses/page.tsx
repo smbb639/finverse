@@ -208,7 +208,9 @@ export default function ExpensesPage() {
   };
 
   const totalSpent = dashboardData?.currentMonth?.total || 0;
+  const currentMonthCount = dashboardData?.currentMonth?.count || 0;
   const budget = dashboardData?.stats?.monthlyBudget || 0;
+  const totalTransactions = dashboardData?.stats?.totalTransactions || 0;
   const remainingBalance = budget - totalSpent;
   const avgExpense = summary?.count ? (summary.total / summary.count) : 0;
 
@@ -281,7 +283,7 @@ export default function ExpensesPage() {
               {formatCurrency(totalSpent)}
             </h3>
             <p className="text-xs text-slate-400 mt-2">
-              Across {summary?.count || 0} items
+              Across {currentMonthCount} items
             </p>
           </CardContent>
         </Card>
@@ -298,7 +300,7 @@ export default function ExpensesPage() {
             </div>
             <p className="text-sm font-medium text-slate-500">Total Transactions</p>
             <h3 className="text-3xl font-bold text-slate-900 mt-1">
-              {summary?.count || 0}
+              {totalTransactions}
             </h3>
           </CardContent>
         </Card>

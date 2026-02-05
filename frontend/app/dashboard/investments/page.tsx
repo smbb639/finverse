@@ -19,7 +19,7 @@ export default function InvestmentsPage() {
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     fetchInvestments();
   }, []);
@@ -27,9 +27,9 @@ export default function InvestmentsPage() {
   const fetchInvestments = async (showLoader = true) => {
     if (showLoader) setLoading(true);
     else setRefreshing(true);
-    
+
     setError(null);
-    
+
     try {
       const data = await investmentService.getInvestments();
       setInvestments(data);
@@ -91,9 +91,9 @@ export default function InvestmentsPage() {
   const assetTypes = ['STOCK', 'MF', 'ETF', 'CRYPTO', 'OTHER'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-40">
+      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 flex-shrink-0">
         <div className="px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -142,11 +142,10 @@ export default function InvestmentsPage() {
             <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
-                  filter === 'all'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                }`}
+                className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${filter === 'all'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                  }`}
               >
                 All Assets
               </button>
@@ -154,11 +153,10 @@ export default function InvestmentsPage() {
                 <button
                   key={type}
                   onClick={() => setFilter(type)}
-                  className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
-                    filter === type
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                  }`}
+                  className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${filter === type
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                    }`}
                 >
                   {type}
                 </button>
@@ -169,127 +167,127 @@ export default function InvestmentsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="px-4 sm:px-6 lg:px-8 py-8">
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-800 text-sm font-medium">
-            {error}
-          </div>
-        )}
+      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 to-blue-50/30">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-800 text-sm font-medium">
+              {error}
+            </div>
+          )}
 
-        {/* Portfolio Stats */}
-        {!loading && investments.length > 0 && (
-          <div className="mb-8">
-            <PortfolioStats investments={investments} />
-          </div>
-        )}
+          {/* Portfolio Stats */}
+          {!loading && investments.length > 0 && (
+            <div className="mb-8">
+              <PortfolioStats investments={investments} />
+            </div>
+          )}
 
-        {/* View Controls */}
-        {!loading && filteredInvestments.length > 0 && (
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl text-sm font-semibold text-gray-700">
-                {filteredInvestments.length} {filteredInvestments.length === 1 ? 'Holding' : 'Holdings'}
+          {/* View Controls */}
+          {!loading && filteredInvestments.length > 0 && (
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 bg-white border-2 border-gray-200 rounded-xl text-sm font-semibold text-gray-700">
+                  {filteredInvestments.length} {filteredInvestments.length === 1 ? 'Holding' : 'Holdings'}
+                </div>
+                {(filter !== 'all' || searchQuery) && (
+                  <button
+                    onClick={() => {
+                      setFilter('all');
+                      setSearchQuery('');
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Clear filters
+                  </button>
+                )}
               </div>
-              {(filter !== 'all' || searchQuery) && (
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => {
-                    setFilter('all');
-                    setSearchQuery('');
-                  }}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'text-gray-500 hover:bg-gray-100'
+                    }`}
+                  aria-label="Grid view"
                 >
-                  Clear filters
+                  <LayoutGrid className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2.5 rounded-xl transition-all ${viewMode === 'list'
+                    ? 'bg-blue-100 text-blue-600'
+                    : 'text-gray-500 hover:bg-gray-100'
+                    }`}
+                  aria-label="List view"
+                >
+                  <List className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading ? (
+            <div className="flex items-center justify-center py-32">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-gray-600 font-medium">Loading your portfolio...</p>
+              </div>
+            </div>
+          ) : filteredInvestments.length === 0 ? (
+            /* Empty State */
+            <div className="text-center py-20 bg-white/80 backdrop-blur-sm rounded-3xl border-2 border-gray-200">
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-200">
+                <TrendingUp className="w-12 h-12 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {searchQuery || filter !== 'all' ? 'No investments found' : 'Start Your Investment Journey'}
+              </h3>
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                {searchQuery || filter !== 'all'
+                  ? 'Try adjusting your search or filters'
+                  : 'Add your first investment to start tracking your portfolio performance'}
+              </p>
+              {(!searchQuery && filter === 'all') && (
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg shadow-blue-200 hover:scale-105"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Your First Investment
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2.5 rounded-xl transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-500 hover:bg-gray-100'
-                }`}
-                aria-label="Grid view"
-              >
-                <LayoutGrid className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2.5 rounded-xl transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'text-gray-500 hover:bg-gray-100'
-                }`}
-                aria-label="List view"
-              >
-                <List className="w-5 h-5" />
-              </button>
+          ) : viewMode === 'grid' ? (
+            /* Grid View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredInvestments.map(investment => (
+                <InvestmentCard
+                  key={investment._id}
+                  investment={investment}
+                  onEdit={(inv) => {
+                    setEditingInvestment(inv);
+                    setShowForm(true);
+                  }}
+                  onSell={handleSellInvestment}
+                />
+              ))}
             </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading ? (
-          <div className="flex items-center justify-center py-32">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-                <TrendingUp className="w-8 h-8 text-white" />
-              </div>
-              <p className="text-gray-600 font-medium">Loading your portfolio...</p>
-            </div>
-          </div>
-        ) : filteredInvestments.length === 0 ? (
-          /* Empty State */
-          <div className="text-center py-20 bg-white/80 backdrop-blur-sm rounded-3xl border-2 border-gray-200">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-200">
-              <TrendingUp className="w-12 h-12 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {searchQuery || filter !== 'all' ? 'No investments found' : 'Start Your Investment Journey'}
-            </h3>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              {searchQuery || filter !== 'all' 
-                ? 'Try adjusting your search or filters' 
-                : 'Add your first investment to start tracking your portfolio performance'}
-            </p>
-            {(!searchQuery && filter === 'all') && (
-              <button
-                onClick={() => setShowForm(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg shadow-blue-200 hover:scale-105"
-              >
-                <Plus className="w-5 h-5" />
-                Add Your First Investment
-              </button>
-            )}
-          </div>
-        ) : viewMode === 'grid' ? (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredInvestments.map(investment => (
-              <InvestmentCard
-                key={investment._id}
-                investment={investment}
-                onEdit={(inv) => {
-                  setEditingInvestment(inv);
-                  setShowForm(true);
-                }}
-                onSell={handleSellInvestment}
-              />
-            ))}
-          </div>
-        ) : (
-          /* List View */
-          <InvestmentList
-            investments={filteredInvestments}
-            onEdit={(inv) => {
-              setEditingInvestment(inv);
-              setShowForm(true);
-            }}
-            onSell={handleSellInvestment}
-          />
-        )}
+          ) : (
+            /* List View */
+            <InvestmentList
+              investments={filteredInvestments}
+              onEdit={(inv) => {
+                setEditingInvestment(inv);
+                setShowForm(true);
+              }}
+              onSell={handleSellInvestment}
+            />
+          )}
+        </div>
       </div>
 
       {/* Investment Form Modal */}

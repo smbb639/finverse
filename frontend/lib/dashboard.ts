@@ -41,6 +41,7 @@ export interface DashboardStats {
   }>;
   currentMonth: {
     total: number;
+    count: number;
     comparedToLastMonth: number;
   };
 }
