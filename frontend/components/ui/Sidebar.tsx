@@ -2,19 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { 
-  PieChart, 
-  TrendingUp, 
-  CreditCard, 
-  BarChart3, 
+import {
+  PieChart,
+  TrendingUp,
+  CreditCard,
+  BarChart3,
   Settings,
   LogOut,
-  Home
+  Home,
+  Newspaper
 } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard/expenses', icon: PieChart, label: 'Expenses' },
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
+  { href: '/dashboard/news', icon: Newspaper, label: 'News' },
 ];
 
 export default function Sidebar() {
@@ -48,16 +50,15 @@ export default function Sidebar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
                     ? 'bg-white/20 text-white shadow-lg'
                     : 'text-blue-200 hover:bg-white/10 hover:text-white'
-                }`}
+                  }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
@@ -79,7 +80,7 @@ export default function Sidebar() {
             <p className="text-blue-200 text-sm mt-2">₹18,550 remaining</p>
           </div>
         </div>
-        
+
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-4 py-3 text-blue-200 hover:bg-white/10 hover:text-white rounded-xl transition-all"

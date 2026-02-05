@@ -7,38 +7,44 @@ let lastFetched = 0;
 const CACHE_DURATION = 10 * 60 * 1000;
 
 
- export const getNews = async (req: AuthRequest, res: Response) => {
-  try {
-    const now = Date.now();
+export const getNews = async (req: AuthRequest, res: Response) => {
+    try {
+        const now = Date.now();
+        const forceRefresh = req.query.force === 'true';
 
-    if (cachedNews && now - lastFetched < CACHE_DURATION) {
-      return res.status(200).json(cachedNews);
-    }
+        console.log(`[NewsAPI] Fetch request received. forceRefresh: ${forceRefresh}`);
 
-    const response = await axios.get(
-      "https://newsapi.org/v2/everything",
-      {
-        params: {
-          q: "stock market OR finance OR economy",
-          language: "en",
-          sortBy: "publishedAt",
-          pageSize: 10,
-          apiKey: process.env.NEWS_API_KEY
+        if (!forceRefresh && cachedNews && now - lastFetched < CACHE_DURATION) {
+            console.log(`[NewsAPI] Returning cached news (age: ${Math.round((now - lastFetched) / 1000)}s)`);
+            return res.status(200).json(cachedNews);
         }
-      }
-    );
 
-    cachedNews = response.data;
-    lastFetched = now;
+        console.log(`[NewsAPI] Fetching fresh news from NewsAPI.org...`);
 
-    return res.status(200).json(cachedNews);
+        const response = await axios.get(
+            "https://newsapi.org/v2/everything",
+            {
+                params: {
+                    q: "stock market OR finance OR economy",
+                    language: "en",
+                    sortBy: "publishedAt",
+                    pageSize: 20,
+                    apiKey: process.env.NEWS_API_KEY
+                }
+            }
+        );
 
-  } catch (error: any) {
-    console.error(error?.response?.data || error.message);
+        cachedNews = response.data;
+        lastFetched = now;
 
-    return res.status(500).json({
-      message: "Failed to fetch news"
-    });
-  }
+        return res.status(200).json(cachedNews);
+
+    } catch (error: any) {
+        console.error(error?.response?.data || error.message);
+
+        return res.status(500).json({
+            message: "Failed to fetch news"
+        });
+    }
 };
 
