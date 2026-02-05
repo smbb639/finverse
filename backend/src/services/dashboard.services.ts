@@ -1,4 +1,4 @@
-import Expense from "../models/Expense";
+import Expense, { IExpense } from "../models/Expense";
 import User from "../models/User";
 import { startOfMonth, endOfMonth, subMonths, format, parseISO, subDays } from "date-fns";
 import mongoose from "mongoose";
@@ -136,10 +136,11 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
         date: { $gte: currentMonthStart, $lte: currentMonthEnd }
       }
     },
-    { $group: { _id: null, total: { $sum: "$amount" } } }
+    { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
   ]);
 
   const currentMonthTotal = currentMonthData[0]?.total || 0;
+  const currentMonthCount = currentMonthData[0]?.count || 0;
 
   // Previous month for comparison
   const previousMonthStart = startOfMonth(subMonths(new Date(), 1));
@@ -181,6 +182,7 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     recentTransactions: formattedRecentTransactions,
     currentMonth: {
       total: currentMonthTotal,
+      count: currentMonthCount,
       comparedToLastMonth: parseFloat(monthComparison.toFixed(2))
     },
     period: {

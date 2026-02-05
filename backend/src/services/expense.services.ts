@@ -1,4 +1,5 @@
 import Expense, { IExpense } from "../models/Expense";
+import mongoose from "mongoose";
 
 
 export const createExpense = async (
@@ -103,7 +104,7 @@ export const getExpenseSummary = async (
   startDate?: Date,
   endDate?: Date
 ) => {
-  const query: any = { user: userId };
+  const query: any = { user: new mongoose.Types.ObjectId(userId) };
 
   if (startDate || endDate) {
     query.date = {};
