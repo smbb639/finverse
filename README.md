@@ -99,15 +99,6 @@ The API is built following RESTful principles and serves all data in JSON format
 
 ---
 
-##  Roadmap
-- [ ] Multi-currency support (USD/EUR)
-- [ ] Recurring expense automation
-- [ ] Push notifications for budget alerts
-- [ ] Mobile App (React Native) implementation
-- [ ] Direct bank statement import (CSV/PDF)
-
----
-
 ##  Contributing
 Since this is an ongoing project, contributions are welcome! Please feel free to open issues or submit pull requests.
 
