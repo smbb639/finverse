@@ -15,9 +15,6 @@ import {
 const navItems = [
   { href: '/dashboard/expenses', icon: PieChart, label: 'Expenses' },
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
-  { href: '/dashboard/budget', icon: CreditCard, label: 'Budget' },
-  { href: '/dashboard/reports', icon: BarChart3, label: 'Reports' },
-  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function Sidebar() {

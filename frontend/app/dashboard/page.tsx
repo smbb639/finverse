@@ -49,40 +49,12 @@ const featureCards = [
     href: '/dashboard/expenses'
   },
   {
-    title: 'Budget Planner',
-    description: 'Set and monitor your monthly budget',
-    icon: IndianRupee,
-    color: 'from-green-500 to-emerald-500',
-    href: '/dashboard/budget'
-  },
-  {
     title: 'Investment Portfolio',
     description: 'Track your stocks and investments',
     icon: TrendingUp,
     color: 'from-purple-500 to-violet-500',
     href: '/dashboard/investments'
   },
-  {
-    title: 'Financial Reports',
-    description: 'Generate detailed financial reports',
-    icon: PieChart,
-    color: 'from-orange-500 to-amber-500',
-    href: '/dashboard/reports'
-  },
-  {
-    title: 'Bill Reminders',
-    description: 'Never miss a payment deadline',
-    icon: Calendar,
-    color: 'from-rose-500 to-pink-500',
-    href: '/dashboard/reminders'
-  },
-  {
-    title: 'Savings Goals',
-    description: 'Plan and achieve your savings targets',
-    icon: IndianRupee,
-    color: 'from-indigo-500 to-blue-500',
-    href: '/dashboard/savings'
-  }
 ];
 
 // Category colors for charts
