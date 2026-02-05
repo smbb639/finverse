@@ -5,12 +5,13 @@ type ChatMessage = {
   text?: string;
 };
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
 export async function generateGeminiReply(
   message: string,
   history: ChatMessage[] = []
 ) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  console.log('hello', apiKey);
+  const genAI = new GoogleGenerativeAI(apiKey!);
   // 1️⃣ sanitize history (remove empty texts)
   const safeHistory = history.filter(
     m => typeof m.text === "string" && m.text.trim().length > 0
@@ -28,7 +29,7 @@ export async function generateGeminiReply(
   }));
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash"
+    model: "gemini-2.5-flash"
   });
 
   const chat = model.startChat({
@@ -36,6 +37,7 @@ export async function generateGeminiReply(
   });
 
   const result = await chat.sendMessage(message);
+  
   const response = result.response.text();
 
   return response || "No response from Gemini";
