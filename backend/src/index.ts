@@ -16,7 +16,7 @@ dotenv.config();
 connectDB();
 const allowedOrigins = ['http://localhost:3000']
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: allowedOrigins,
   credentials: true, // if you're using cookies or authorization headers
