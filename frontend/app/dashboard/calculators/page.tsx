@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Calculator, Target } from 'lucide-react';
 import PositionSizingCalculator from '@/components/calculators/PositionSizingCalculator';
+import LoanCalculator from '@/components/calculators/LoanCalculator';
 
 type CalculatorTab = 'position-sizing' | 'loan' | 'returns';
 
@@ -11,8 +12,7 @@ export default function CalculatorsPage() {
 
     const tabs = [
         { id: 'position-sizing', label: 'Position Sizing', icon: Target },
-        // Future placeholders
-        { id: 'loan', label: 'Loan Calculator', icon: Calculator, disabled: true },
+        { id: 'loan', label: 'Loan Calculator', icon: Calculator },
         { id: 'returns', label: 'Returns Calculator', icon: Calculator, disabled: true },
     ];
 
@@ -60,6 +60,7 @@ export default function CalculatorsPage() {
             <div className="p-4 sm:p-6 lg:p-8">
                 <div className="max-w-4xl mx-auto">
                     {activeTab === 'position-sizing' && <PositionSizingCalculator />}
+                    {activeTab === 'loan' && <LoanCalculator />}
                 </div>
             </div>
 
