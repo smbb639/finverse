@@ -14,7 +14,7 @@ import { globalLimiter, authLimiter, apiLimiter } from "./middleware/rateLimiter
 
 dotenv.config();
 connectDB();
-const allowedOrigins = ['http://localhost:3000']
+const allowedOrigins = ['http://localhost:3000', 'https://finverse-1.vercel.app']
 const app = express();
 const PORT = process.env.PORT || 5000;
 const corsOptions = {
