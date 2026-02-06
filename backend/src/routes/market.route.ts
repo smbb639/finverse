@@ -4,7 +4,6 @@ import { getMarketSnapshot } from "../controller/market.controller";
 
 const marketRouter = Router();
 
-marketRouter.use(protect);
-marketRouter.get("/snapshot", getMarketSnapshot);
+marketRouter.get("/snapshot", protect, getMarketSnapshot);
 
 export default marketRouter;

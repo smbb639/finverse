@@ -10,19 +10,15 @@ export async function generateGeminiReply(
   history: ChatMessage[] = []
 ) {
   const apiKey = process.env.GEMINI_API_KEY;
-  console.log('hello', apiKey);
   const genAI = new GoogleGenerativeAI(apiKey!);
-  // 1️⃣ sanitize history (remove empty texts)
   const safeHistory = history.filter(
     m => typeof m.text === "string" && m.text.trim().length > 0
   );
 
-  // 2️⃣ remove leading bot messages (CRITICAL FIX)
   while (safeHistory.length && safeHistory[0].role !== "user") {
     safeHistory.shift();
   }
 
-  // 3️⃣ map to Gemini SDK format
   const formattedHistory = safeHistory.map(m => ({
     role: m.role === "user" ? "user" : "model",
     parts: [{ text: m.text as string }]
