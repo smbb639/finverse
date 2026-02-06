@@ -10,6 +10,7 @@ import { connectDB } from "./config/db";
 import newsRouter from "./routes/news.routes";
 import chatRoutes from "./routes/chat.routes";
 import calculatorsRouter from "./routes/calculators.route";
+import { globalLimiter, authLimiter, apiLimiter } from "./middleware/rateLimiter";
 
 dotenv.config();
 connectDB();
@@ -17,26 +18,26 @@ const allowedOrigins = ['http://localhost:3000']
 const app = express();
 const PORT = process.env.PORT;
 const corsOptions = {
-    origin: allowedOrigins,
-    credentials: true, // if you're using cookies or authorization headers
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    // allowedHeaders: ['Content-Type', 'Authorization'],
-    allowedHeaders: '*'
+  origin: allowedOrigins,
+  credentials: true, // if you're using cookies or authorization headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  // allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: '*'
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(globalLimiter); 
 
 app.use("/api", chatRoutes);
-app.use("/api/auth", authRouter);
-app.use("/api/investment", investmentRouter);
-app.use("/api/dashboard", dashboardRouter);
-app.use("/api/expenses", expenseRouter);
-app.use("/api/news", newsRouter);
-app.use("/api/market", marketRouter);
-app.use("/api/calculators", calculatorsRouter);
+app.use("/api/auth", authLimiter, authRouter); 
+app.use("/api/investment", apiLimiter, investmentRouter);
+app.use("/api/dashboard", apiLimiter, dashboardRouter);
+app.use("/api/expenses", apiLimiter, expenseRouter);
+app.use("/api/news", apiLimiter, newsRouter);
+app.use("/api/market", apiLimiter, marketRouter);
+app.use("/api/calculators", apiLimiter, calculatorsRouter);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });

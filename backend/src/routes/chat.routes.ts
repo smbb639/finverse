@@ -3,6 +3,8 @@ import { chatController } from "../controller/chat.controller";
 
 const router = Router();
 
-router.post("/chat", chatController);
+import { apiLimiter } from "../middleware/rateLimiter";
+
+router.post("/chat", apiLimiter, chatController);
 
 export default router;
