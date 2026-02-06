@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   Home,
+  Calculator,
   Newspaper
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -21,6 +22,7 @@ const navItems = [
   { href: '/dashboard/expenses', icon: PieChart, label: 'Expenses' },
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
   { href: '/dashboard/news', icon: Newspaper, label: 'News' },
+  { href: '/dashboard/calculators', icon: Calculator, label: 'Calculators' },
 ];
 
 export default function Sidebar() {

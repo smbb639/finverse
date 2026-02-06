@@ -6,7 +6,7 @@ import {
   X,
   TrendingDown,
   AlertCircle,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Loader2
 } from 'lucide-react';
@@ -138,7 +138,7 @@ export default function SellModal({ investment, onClose, onSell }: SellModalProp
           {/* Sell Price */}
           <div>
             <label className="flex items-center gap-2 font-semibold text-sm mb-2">
-              <DollarSign className="w-4 h-4" /> Sell Price (₹)
+              <IndianRupee className="w-4 h-4" /> Sell Price (₹)
             </label>
             <input
               type="number"
@@ -177,11 +177,10 @@ export default function SellModal({ investment, onClose, onSell }: SellModalProp
           {price > 0 && (
             <div
               id="pnl-preview"
-              className={`p-5 rounded-2xl border-2 ${
-                isProfit
+              className={`p-5 rounded-2xl border-2 ${isProfit
                   ? 'bg-green-50 border-green-200'
                   : 'bg-red-50 border-red-200'
-              }`}
+                }`}
             >
               <p className="text-sm font-medium text-gray-600 mb-3">
                 Expected Outcome
