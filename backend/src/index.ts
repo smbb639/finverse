@@ -9,6 +9,7 @@ import marketRouter from "./routes/market.route";
 import { connectDB } from "./config/db";
 import newsRouter from "./routes/news.routes";
 import chatRoutes from "./routes/chat.routes";
+import calculatorsRouter from "./routes/calculators.route";
 
 dotenv.config();
 connectDB();
@@ -35,6 +36,7 @@ app.use("/api/dashboard", dashboardRouter);
 app.use("/api/expenses", expenseRouter);
 app.use("/api/news", newsRouter);
 app.use("/api/market", marketRouter);
+app.use("/api/calculators", calculatorsRouter);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
@@ -49,6 +51,6 @@ app.use((err: any, req: any, res: any, next: any) => {
   });
 });
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
 });
 
