@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Investment } from '@/lib/investment';
+import { Investment, InvestmentFormData } from '@/lib/investment';
 import { X, Search, TrendingUp, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { searchSymbols } from '@/lib/api';
 
@@ -13,7 +13,7 @@ interface SearchResult {
 
 interface InvestmentFormProps {
   investment?: Investment;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: InvestmentFormData) => Promise<void>;
   onClose: () => void;
 }
 
@@ -23,8 +23,8 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
     name: investment?.name || '',
     quantity: investment?.quantity?.toString() || '1',
     buyPrice: investment?.buyPrice?.toString() || '',
-    buyDate: investment?.buyDate 
-      ? new Date(investment.buyDate).toISOString().split('T')[0] 
+    buyDate: investment?.buyDate
+      ? new Date(investment.buyDate).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0],
     type: investment?.type || 'STOCK',
   });
@@ -39,10 +39,10 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSymbolValid, setIsSymbolValid] = useState(false);
-  
+
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const debounceTimerRef = useRef<NodeJS.Timeout>();
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [manualBuyPrice, setManualBuyPrice] = useState('');
 
@@ -60,14 +60,14 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
 
     try {
       const results = await searchSymbols(query);
-      
+
       // Sort results: exact matches first, then by relevance
       const sortedResults = results.sort((a: SearchResult, b: SearchResult) => {
         const aSymbolMatch = a.symbol.toLowerCase() === query.toLowerCase();
         const bSymbolMatch = b.symbol.toLowerCase() === query.toLowerCase();
         const aNameMatch = a.name.toLowerCase().includes(query.toLowerCase());
         const bNameMatch = b.name.toLowerCase().includes(query.toLowerCase());
-        
+
         if (aSymbolMatch && !bSymbolMatch) return -1;
         if (!aSymbolMatch && bSymbolMatch) return 1;
         if (aNameMatch && !bNameMatch) return -1;
@@ -120,7 +120,7 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex(prev =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
         break;
@@ -158,7 +158,7 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    
+
     // Clear selection if user clears the input or types something very different
     if (value.length === 0) {
       setFormData(prev => ({
@@ -172,7 +172,7 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isSymbolValid) {
       setError('Please select a valid symbol from the search results');
       return;
@@ -180,7 +180,7 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
 
     setLoading(true);
     setError(null);
-    
+
     try {
       await onSubmit({
         ...formData,
@@ -189,7 +189,7 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
           ? parseFloat(manualBuyPrice)
           : parseFloat(formData.buyPrice),
         quantity: parseInt(formData.quantity, 10),
-});
+      });
       onClose();
     } catch (err) {
       console.error('Error submitting form:', err);
@@ -272,17 +272,15 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
                   onFocus={() => {
                     if (suggestions.length > 0) setShowSuggestions(true);
                   }}
-                  className={`w-full pl-12 pr-12 py-3.5 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all text-gray-900 placeholder-gray-400 ${
-                    isSymbolValid 
-                      ? 'border-green-300 focus:border-green-500' 
-                      : 'border-gray-200 focus:border-blue-500'
-                  }`}
+                  className={`w-full pl-12 pr-12 py-3.5 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all text-gray-900 placeholder-gray-400 ${isSymbolValid
+                    ? 'border-green-300 focus:border-green-500'
+                    : 'border-gray-200 focus:border-blue-500'
+                    }`}
                   placeholder="Search by symbol or company name (e.g., RELIANCE or Reliance Industries)"
                   autoComplete="off"
                   aria-label="Search for stock symbol or name"
                   aria-autocomplete="list"
                   aria-controls="search-suggestions"
-                  aria-expanded={showSuggestions}
                 />
                 {searchQuery && (
                   <button
@@ -309,38 +307,38 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
                   </div>
                 )}
               </div>
-                <div className="mt-2 flex items-center gap-2">
-  <input
-    type="checkbox"
-    checked={manualMode}
-    onChange={() => {
-      setManualMode(prev => !prev);
-      setFormData(prev => ({ ...prev, symbol: '', name: '' }));
-      setSearchQuery('');
-    }}
-    className="w-4 h-4"
-  />
-  <span className="text-sm text-gray-600">
-    Enter asset manually
-  </span>
-</div>
-{manualMode && (
-  <div>
-    <label className="block text-sm font-semibold text-gray-700 mb-2">
-      Asset Name *
-    </label>
-    <input
-      type="text"
-      value={formData.name}
-      onChange={(e) =>
-        setFormData(prev => ({ ...prev, name: e.target.value }))
-      }
-      placeholder="e.g. Gold Investment, Private Equity"
-      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
-      required
-    />
-  </div>
-)}
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={manualMode}
+                  onChange={() => {
+                    setManualMode(prev => !prev);
+                    setFormData(prev => ({ ...prev, symbol: '', name: '' }));
+                    setSearchQuery('');
+                  }}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm text-gray-600">
+                  Enter asset manually
+                </span>
+              </div>
+              {manualMode && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Asset Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData(prev => ({ ...prev, name: e.target.value }))
+                    }
+                    placeholder="e.g. Gold Investment, Private Equity"
+                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
+                    required
+                  />
+                </div>
+              )}
 
 
               {/* Suggestions Dropdown */}
@@ -357,11 +355,10 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
                       type="button"
                       role="option"
                       aria-selected={index === selectedIndex}
-                      className={`w-full px-5 py-4 text-left transition-all border-b border-gray-100 last:border-b-0 ${
-                        index === selectedIndex
-                          ? 'bg-blue-50 border-blue-100'
-                          : 'hover:bg-gray-50'
-                      }`}
+                      className={`w-full px-5 py-4 text-left transition-all border-b border-gray-100 last:border-b-0 ${index === selectedIndex
+                        ? 'bg-blue-50 border-blue-100'
+                        : 'hover:bg-gray-50'
+                        }`}
                       onClick={() => selectSuggestion(suggestion)}
                       onMouseEnter={() => setSelectedIndex(index)}
                     >
@@ -442,43 +439,43 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
                   Buy Price (₹) *
                 </label>
                 <input
-  type="number"
-  name="buyPrice"
-  value={formData.buyPrice}
-  onChange={(e) =>
-    setFormData(prev => ({ ...prev, buyPrice: e.target.value }))
-  }
-  disabled={manualMode}
-  required={!manualMode}
-  className={`w-full px-4 py-3.5 border-2 rounded-xl transition-all
+                  type="number"
+                  name="buyPrice"
+                  value={formData.buyPrice}
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, buyPrice: e.target.value }))
+                  }
+                  disabled={manualMode}
+                  required={!manualMode}
+                  className={`w-full px-4 py-3.5 border-2 rounded-xl transition-all
     ${manualMode
-      ? 'bg-gray-100 cursor-not-allowed border-gray-200'
-      : 'border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500'
-    }`}
-  placeholder="0.00"
-  step="0.01"
-  min="0.01"
-/>
+                      ? 'bg-gray-100 cursor-not-allowed border-gray-200'
+                      : 'border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500'
+                    }`}
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0.01"
+                />
 
               </div>
             </div>
-{manualMode && (
-  <div>
-    <label className="block text-sm font-semibold text-gray-700 mb-2">
-      Manual Buy Price (₹) *
-    </label>
-    <input
-      type="number"
-      value={manualBuyPrice}
-      onChange={(e) => setManualBuyPrice(e.target.value)}
-      placeholder="Enter purchase price"
-      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
-      min="0.01"
-      step="0.01"
-      required
-    />
-  </div>
-)}
+            {manualMode && (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Manual Buy Price (₹) *
+                </label>
+                <input
+                  type="number"
+                  value={manualBuyPrice}
+                  onChange={(e) => setManualBuyPrice(e.target.value)}
+                  placeholder="Enter purchase price"
+                  className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
+                  min="0.01"
+                  step="0.01"
+                  required
+                />
+              </div>
+            )}
 
             {/* Buy Date */}
             <div>
@@ -508,11 +505,10 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
                     key={type}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, type: type as Investment['type'] }))}
-                    className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                      formData.type === type
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${formData.type === type
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                   >
                     {type}
                   </button>
@@ -530,29 +526,29 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
           )}
 
           {/* Action Buttons */}
-         <div className="sticky bottom-0 bg-white pt-6 pb-4 border-t border-gray-100 flex gap-3">
-  <button
-    type="button"
-    onClick={onClose}
-    className="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all font-semibold"
-  >
-    Cancel
-  </button>
-  <button
-    type="submit"
-    disabled={loading || !isSymbolValid}
-    className="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
-  >
-    {loading ? (
-      <>
-        <Loader2 className="w-5 h-5 animate-spin" />
-        Saving...
-      </>
-    ) : (
-      investment ? 'Update Investment' : 'Add Investment'
-    )}
-  </button>
-</div>
+          <div className="sticky bottom-0 bg-white pt-6 pb-4 border-t border-gray-100 flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all font-semibold"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !isSymbolValid}
+              className="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                investment ? 'Update Investment' : 'Add Investment'
+              )}
+            </button>
+          </div>
 
         </form>
       </div>
