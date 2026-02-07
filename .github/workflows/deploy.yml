@@ -7,23 +7,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-      
-      - name: Add GitHub to known hosts
-        run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-      
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Deploy to server
-        run: |
-          cd ~/finverse/backend
-          git pull origin main
-          npm install
-          npm run build
-          pm2 restart finverse-backend
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/finverse/backend
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart finverse-backend
