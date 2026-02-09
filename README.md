@@ -1,7 +1,5 @@
 # 🌌 Finverse 
 
-Finverse is a premium, real-time personal finance dashboard designed to provide users with deep insights into their spending habits while keeping them connected to the pulse of the financial markets. Built with modern web technologies, it offers a seamless experience for tracking expenses, managing portfolios, and monitoring market indices.
-
 > **Status:**  **Under Active Development (Beta)**
 > This project is currently in a high-velocity development phase. New features are being rolled out frequently.
 
