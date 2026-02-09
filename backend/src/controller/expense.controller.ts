@@ -16,7 +16,7 @@ export const addExpense = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     if (!amount || !category) {
@@ -44,7 +44,7 @@ export const getAllExpenses = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     const { category, startDate, endDate, limit, skip, q } = req.query;
@@ -74,7 +74,7 @@ export const getExpense = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     const expense = await getExpenseById(id as any, userId);
@@ -96,7 +96,7 @@ export const updateExpenseController = async (req: AuthRequest, res: Response) =
     const { amount, category, description, date } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     const updates: any = {};
@@ -126,7 +126,7 @@ export const removeExpense = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     if (!userId) {
-      return res.status(402).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     const expense = await deleteExpense(id as any, userId);
@@ -149,7 +149,7 @@ export const getSummary = async (req: AuthRequest, res: Response) => {
     const { startDate, endDate } = req.query;
 
     if (!userId) {
-      return res.status(402).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     const summary = await getExpenseSummary(
@@ -170,7 +170,7 @@ export const updateBudget = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(402).json({ message: "Unauthorized" });
+      return res.status(400).json({ message: "Unauthorized" });
     }
 
     const user = await User.findByIdAndUpdate(
