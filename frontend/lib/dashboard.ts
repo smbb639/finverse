@@ -121,4 +121,11 @@ export const dashboardService = {
     }>(`/dashboard/category-breakdown?period=${period}`);
     return response.data.data;
   },
+
+  async exportData() {
+    const response = await api.get('/export/all', {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
 };

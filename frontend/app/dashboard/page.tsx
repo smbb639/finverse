@@ -94,6 +94,8 @@ export default function DashboardPage() {
     queryFn: () => dashboardService.getCategoryBreakdown(breakdownPeriod),
   });
 
+  const [isExporting, setIsExporting] = useState(false);
+
   const loading = loadingDashboard || loadingStats;
 
   if (loading) {
@@ -126,6 +128,27 @@ export default function DashboardPage() {
   }
   const userName = dashboardData?.user?.name ?? 'User';
 
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const blob = await dashboardService.exportData();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Finverse_Export_${format(new Date(), 'yyyyMMdd')}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export data. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -137,9 +160,14 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={handleExport}
+            disabled={isExporting}
+          >
             <Download className="h-4 w-4" />
-            Export
+            {isExporting ? 'Exporting...' : 'Export'}
           </Button>
         </div>
       </div>
