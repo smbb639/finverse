@@ -10,6 +10,7 @@ import { connectDB } from "./config/db";
 import newsRouter from "./routes/news.routes";
 import chatRoutes from "./routes/chat.routes";
 import calculatorsRouter from "./routes/calculators.route";
+import exportRouter from "./routes/export.route";
 import { globalLimiter, authLimiter, apiLimiter } from "./middleware/rateLimiter";
 
 dotenv.config();
@@ -27,16 +28,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(globalLimiter); 
+app.use(globalLimiter);
 
 app.use("/api", chatRoutes);
-app.use("/api/auth", authLimiter, authRouter); 
+app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/investment", apiLimiter, investmentRouter);
 app.use("/api/dashboard", apiLimiter, dashboardRouter);
 app.use("/api/expenses", apiLimiter, expenseRouter);
 app.use("/api/news", apiLimiter, newsRouter);
 app.use("/api/market", apiLimiter, marketRouter);
 app.use("/api/calculators", apiLimiter, calculatorsRouter);
+app.use("/api/export", apiLimiter, exportRouter);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
