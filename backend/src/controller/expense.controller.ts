@@ -12,7 +12,7 @@ import User from "../models/User";
 
 export const addExpense = async (req: AuthRequest, res: Response) => {
   try {
-    const { amount, category, description, date } = req.body;
+    const { amount, category, description, date, goalId } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -28,7 +28,8 @@ export const addExpense = async (req: AuthRequest, res: Response) => {
       amount,
       category,
       description || "No description",
-      date
+      date,
+      goalId
     );
 
     res.status(201).json({

@@ -7,7 +7,8 @@ export const createExpense = async (
   amount: number,
   category: string,
   description?: string,
-  date?: Date
+  date?: Date,
+  goalId?: string
 ) => {
   const expenseData: any = {
     user: userId,
@@ -18,6 +19,10 @@ export const createExpense = async (
 
   if (description) {
     expenseData.description = description;
+  }
+
+  if (goalId) {
+    expenseData.goal = goalId;
   }
 
   const expense = await Expense.create(expenseData);

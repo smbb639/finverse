@@ -12,6 +12,7 @@ import chatRoutes from "./routes/chat.routes";
 import calculatorsRouter from "./routes/calculators.route";
 import exportRouter from "./routes/export.route";
 import { globalLimiter, authLimiter, apiLimiter } from "./middleware/rateLimiter";
+import goalRouter from "./routes/goal.route";
 
 dotenv.config();
 connectDB();
@@ -38,6 +39,7 @@ app.use("/api/expenses", apiLimiter, expenseRouter);
 app.use("/api/news", apiLimiter, newsRouter);
 app.use("/api/market", apiLimiter, marketRouter);
 app.use("/api/calculators", apiLimiter, calculatorsRouter);
+app.use("/api/goals", apiLimiter, goalRouter);
 app.use("/api/export", apiLimiter, exportRouter);
 
 app.get("/", (req, res) => {
