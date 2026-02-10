@@ -4,8 +4,10 @@ import { protect } from "../middleware/auth.middleware"; // Your auth middleware
 
 const router = express.Router();
 
-router.post("/", protect, addGoal);
-router.get("/", protect, getGoals);
-router.delete("/:id", protect, deleteGoal);
+router.use(protect)
+
+router.post("/", addGoal);
+router.get("/", getGoals);
+router.delete("/:id", deleteGoal);
 
 export default router;

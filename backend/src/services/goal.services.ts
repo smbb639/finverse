@@ -15,7 +15,7 @@ export const getUserGoal = async (userId: string) => {
         {
           $match: {
             user: new mongoose.Types.ObjectId(userId),
-            goal: goal._id,
+            goal: new mongoose.Types.ObjectId(goal._id.toString()),
           },
         },
         {
@@ -23,13 +23,12 @@ export const getUserGoal = async (userId: string) => {
             _id: null,
             totalSaved: { $sum: "$amount" },
             firstContribution: { $min: "$date" },
-            lastContribution: { $max: "$date" },
           },
         },
       ]);
     const stats = aggregation[0] || {totalSaved:0, firstContribution: new Date()}
     const currAmount = stats.totalSaved;
-    const progressPercentage = Math.min(currAmount/goal.targetAmount)
+    const progressPercentage =Number((currAmount/goal.targetAmount)*100).toFixed(2);
     const remainingAmount = Math.max(goal.targetAmount-currAmount,0)
     const insight = generateGoalInsight(goal, currAmount, remainingAmount, stats.firstContribution)
     return {
