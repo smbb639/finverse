@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Bell, Calendar } from 'lucide-react';
+import { Menu, Search, Bell, Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MarketSnapshot from './MarketSnapshot';
 
@@ -9,7 +9,11 @@ interface User {
   email: string;
 }
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [formattedDate, setFormattedDate] = useState<string>('');
 
@@ -37,6 +41,13 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b">
       <div className="px-6 py-3">
         <div className="flex items-center justify-between gap-4">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 -ml-2 text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
           {/* Left Section - Market Snapshot */}
           <div className="flex items-center">
             <MarketSnapshot />

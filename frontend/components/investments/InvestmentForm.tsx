@@ -499,7 +499,7 @@ export default function InvestmentForm({ investment, onSubmit, onClose }: Invest
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Asset Type
               </label>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-2">
                 {['STOCK', 'MF', 'ETF', 'CRYPTO', 'OTHER'].map((type) => (
                   <button
                     key={type}

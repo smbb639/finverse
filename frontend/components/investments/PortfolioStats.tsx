@@ -71,29 +71,29 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       {/* Portfolio Value Card */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all group">
+      <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all group overflow-hidden">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0">
                 <IndianRupee className="w-5 h-5 text-white" />
               </div>
-              <p className="text-sm font-semibold text-gray-600">Portfolio Value</p>
+              <p className="text-sm font-semibold text-gray-600 truncate">Portfolio Value</p>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-3">
+            <h3 className="text-xl sm:text-2xl xl:text-3xl font-bold text-gray-900 mb-3 truncate tracking-tight" title={formatCurrency(stats.currentValue)}>
               {formatCurrency(stats.currentValue)}
             </h3>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">Invested</span>
-                <span className="text-sm font-semibold text-gray-700">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 flex-shrink-0">Invested</span>
+                <span className="text-sm font-semibold text-gray-700 truncate">
                   {formatCurrency(stats.totalInvested)}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">Holdings</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 flex-shrink-0">Holdings</span>
                 <span className="text-sm font-semibold text-gray-700">
                   {investments.length}
                 </span>
@@ -110,16 +110,16 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
       </div>
 
       {/* Total P&L Card */}
-      <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 transition-all group ${isPositive
-          ? 'border-green-200 hover:shadow-green-100'
-          : 'border-red-200 hover:shadow-red-100'
+      <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 transition-all group overflow-hidden ${isPositive
+        ? 'border-green-200 hover:shadow-green-100'
+        : 'border-red-200 hover:shadow-red-100'
         } hover:shadow-xl`}>
         <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${isPositive
-                  ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200'
-                  : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-200'
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 ${isPositive
+                ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200'
+                : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-200'
                 }`}>
                 {isPositive ? (
                   <TrendingUp className="w-5 h-5 text-white" />
@@ -127,22 +127,22 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
                   <TrendingDown className="w-5 h-5 text-white" />
                 )}
               </div>
-              <p className="text-sm font-semibold text-gray-600">Total P&L</p>
+              <p className="text-sm font-semibold text-gray-600 truncate">Total P&L</p>
             </div>
-            <h3 className={`text-3xl font-bold mb-2 ${isPositive ? 'text-green-600' : 'text-red-600'
-              }`}>
+            <h3 className={`text-xl sm:text-2xl xl:text-3xl font-bold mb-2 truncate tracking-tight ${isPositive ? 'text-green-600' : 'text-red-600'
+              }`} title={`${isPositive ? '+' : '-'}${formatCurrency(Math.abs(stats.totalPnl))}`}>
               {isPositive ? '+' : '-'}{formatCurrency(Math.abs(stats.totalPnl))}
             </h3>
             <div className="space-y-2">
               <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-semibold ${isPositive
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-red-50 text-red-700'
+                ? 'bg-green-50 text-green-700'
+                : 'bg-red-50 text-red-700'
                 }`}>
                 {isPositive ? '↑' : '↓'} {stats.totalPnlPercent.toFixed(2)}%
               </div>
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-xs text-gray-500">PnL Percentage</span>
-                <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="flex items-center justify-between pt-2 gap-2">
+                <span className="text-xs text-gray-500 flex-shrink-0">PnL Percentage</span>
+                <span className={`text-sm font-semibold truncate ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                   {isPositive ? '+' : '-'}{stats.totalPnlPercent.toFixed(2)}%
                 </span>
               </div>

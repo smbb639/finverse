@@ -24,10 +24,15 @@ const navItems = [
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
   { href: '/dashboard/news', icon: Newspaper, label: 'News' },
   { href: '/dashboard/calculators', icon: Calculator, label: 'Calculators' },
-  {href : '/dashboard/goals', icon: Goal, label: 'Goals'}
+  { href: '/dashboard/goals', icon: Goal, label: 'Goals' }
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
+}
+
+export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -49,22 +54,35 @@ export default function Sidebar() {
   const isOverBudget = spent > budget && budget > 0;
 
   return (
-    <div className="flex flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white h-screen sticky top-0">
+    <div className={`
+      fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:w-20 xl:w-64 flex flex-col
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+    `}>
+      {/* Close button for mobile */}
+      <button
+        onClick={() => setIsOpen?.(false)}
+        className="lg:hidden absolute top-4 right-4 p-2 text-blue-200 hover:text-white"
+      >
+        <svg xmlns="http://www.w3.org/2000/xl" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       {/* Logo */}
-      <div className="p-6 border-b border-blue-800">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+      <div className="p-6 border-b border-blue-800 lg:px-4 xl:p-6">
+        <Link href="/dashboard" className="flex items-center gap-3 lg:justify-center xl:justify-start">
+          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
             <Home className="w-6 h-6" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold">Finverse</h1>
+          <div className="lg:hidden xl:block">
+            <h1 className="text-xl font-bold whitespace-nowrap">Finverse</h1>
             <p className="text-blue-200 text-xs">Finance Manager</p>
           </div>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6">
+      <nav className="flex-1 px-4 py-6 lg:px-2 xl:px-4">
         <div className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -74,13 +92,14 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all lg:justify-center xl:justify-start ${isActive
                   ? 'bg-white/20 text-white shadow-lg'
                   : 'text-blue-200 hover:bg-white/10 hover:text-white'
                   }`}
+                title={item.label}
               >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span className="font-medium lg:hidden xl:inline">{item.label}</span>
               </Link>
             );
           })}
@@ -88,8 +107,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="p-4 border-t border-blue-800">
-        <div className="mb-4">
+      <div className="p-4 border-t border-blue-800 lg:p-2 xl:p-4">
+        <div className="mb-4 lg:hidden xl:block">
           <div className="px-4 py-3 bg-white/10 rounded-xl relative overflow-hidden group">
             {isLoading ? (
               <div className="space-y-2">
@@ -132,10 +151,11 @@ export default function Sidebar() {
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-3 text-blue-200 hover:bg-white/10 hover:text-white rounded-xl transition-all"
+          className="flex items-center gap-3 w-full px-4 py-3 text-blue-200 hover:bg-white/10 hover:text-white rounded-xl transition-all lg:justify-center xl:justify-start"
+          title="Logout"
         >
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          <span className="font-medium lg:hidden xl:inline">Logout</span>
         </button>
       </div>
     </div>

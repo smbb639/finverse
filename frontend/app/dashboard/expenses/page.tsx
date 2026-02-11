@@ -247,7 +247,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="border-0 shadow-sm bg-blue-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -554,7 +554,7 @@ export default function ExpensesPage() {
                       Select Category
                     </Label>
                     <input type="hidden" name="category" value={selectedCategory} />
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-2">
                       {CATEGORIES.map(cat => {
                         const Icon = CATEGORY_ICONS[cat] || MoreHorizontal;
                         const isSelected = selectedCategory === cat;
