@@ -11,7 +11,8 @@ import {
   LogOut,
   Home,
   Calculator,
-  Newspaper
+  Newspaper,
+  Goal
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '@/lib/dashboard';
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
   { href: '/dashboard/news', icon: Newspaper, label: 'News' },
   { href: '/dashboard/calculators', icon: Calculator, label: 'Calculators' },
+  {href : '/dashboard/goals', icon: Goal, label: 'Goals'}
 ];
 
 export default function Sidebar() {
