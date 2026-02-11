@@ -66,7 +66,7 @@ export default function InvestmentList({ investments, onEdit, onSell }: Investme
     }
 
     if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortOrder === 'asc' 
+      return sortOrder === 'asc'
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
@@ -89,15 +89,15 @@ export default function InvestmentList({ investments, onEdit, onSell }: Investme
     if (sortField !== field) {
       return <ChevronDown className="w-4 h-4 text-gray-400" />;
     }
-    return sortOrder === 'asc' 
+    return sortOrder === 'asc'
       ? <ChevronUp className="w-4 h-4 text-blue-600" />
       : <ChevronDown className="w-4 h-4 text-blue-600" />;
   };
 
   return (
     <>
-      <div className="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden shadow-lg">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden shadow-xl">
+        <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
               <tr>
@@ -164,10 +164,10 @@ export default function InvestmentList({ investments, onEdit, onSell }: Investme
               {sortedInvestments.map((investment) => {
                 const typeColors = getTypeColor(investment.type);
                 const isPositive = (investment.pnl || 0) >= 0;
-                
+
                 return (
-                  <tr 
-                    key={investment._id} 
+                  <tr
+                    key={investment._id}
                     className="hover:bg-blue-50/50 transition-colors group"
                   >
                     <td className="px-6 py-4">

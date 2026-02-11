@@ -71,34 +71,34 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
       {/* Portfolio Value Card */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all group overflow-hidden">
-        <div className="flex items-start justify-between mb-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all group overflow-hidden">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0">
-                <IndianRupee className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0">
+                <IndianRupee className="w-4 h-4 text-white" />
               </div>
-              <p className="text-sm font-semibold text-gray-600 truncate">Portfolio Value</p>
+              <p className="text-[9px] sm:text-xs font-semibold text-gray-500 truncate uppercase tracking-widest">Portfolio Value</p>
             </div>
-            <h3 className="text-xl sm:text-2xl xl:text-3xl font-bold text-gray-900 mb-3 truncate tracking-tight" title={formatCurrency(stats.currentValue)}>
+            <h3 className="text-lg sm:text-xl xl:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2 truncate tracking-tight" title={formatCurrency(stats.currentValue)}>
               {formatCurrency(stats.currentValue)}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-1.5">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-gray-500 flex-shrink-0">Invested</span>
-                <span className="text-sm font-semibold text-gray-700 truncate">
+                <span className="text-[9px] sm:text-xs text-gray-400 flex-shrink-0 uppercase font-bold">Invested</span>
+                <span className="text-xs sm:text-[13px] font-semibold text-gray-600 truncate">
                   {formatCurrency(stats.totalInvested)}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-gray-500 flex-shrink-0">Holdings</span>
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-[9px] sm:text-xs text-gray-400 flex-shrink-0 uppercase font-bold">Holdings</span>
+                <span className="text-xs sm:text-[13px] font-semibold text-gray-600">
                   {investments.length}
                 </span>
               </div>
-              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-2">
+              <div className="h-1 bg-gray-50 rounded-full overflow-hidden mt-1 sm:mt-2">
                 <div
                   className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
                   style={{ width: `${Math.min((stats.currentValue / stats.totalInvested) * 100, 100)}%` }}
@@ -110,39 +110,39 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
       </div>
 
       {/* Total P&L Card */}
-      <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 transition-all group overflow-hidden ${isPositive
-        ? 'border-green-200 hover:shadow-green-100'
-        : 'border-red-200 hover:shadow-red-100'
+      <div className={`bg-white rounded-2xl p-4 sm:p-5 shadow-lg border-2 transition-all group overflow-hidden ${isPositive
+        ? 'border-green-100 hover:shadow-green-50'
+        : 'border-red-100 hover:shadow-red-50'
         } hover:shadow-xl`}>
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 ${isPositive
-                ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-200'
-                : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-200'
+            <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0 ${isPositive
+                ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-green-100'
+                : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-100'
                 }`}>
                 {isPositive ? (
-                  <TrendingUp className="w-5 h-5 text-white" />
+                  <TrendingUp className="w-4 h-4 text-white" />
                 ) : (
-                  <TrendingDown className="w-5 h-5 text-white" />
+                  <TrendingDown className="w-4 h-4 text-white" />
                 )}
               </div>
-              <p className="text-sm font-semibold text-gray-600 truncate">Total P&L</p>
+              <p className="text-[9px] sm:text-xs font-semibold text-gray-500 truncate uppercase tracking-widest">Total P&L</p>
             </div>
-            <h3 className={`text-xl sm:text-2xl xl:text-3xl font-bold mb-2 truncate tracking-tight ${isPositive ? 'text-green-600' : 'text-red-600'
+            <h3 className={`text-lg sm:text-xl xl:text-2xl font-bold mb-1.5 sm:mb-2 truncate tracking-tight ${isPositive ? 'text-green-600' : 'text-red-600'
               }`} title={`${isPositive ? '+' : '-'}${formatCurrency(Math.abs(stats.totalPnl))}`}>
               {isPositive ? '+' : '-'}{formatCurrency(Math.abs(stats.totalPnl))}
             </h3>
-            <div className="space-y-2">
-              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-semibold ${isPositive
+            <div className="space-y-1 sm:space-y-1.5">
+              <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] sm:text-xs font-bold ${isPositive
                 ? 'bg-green-50 text-green-700'
                 : 'bg-red-50 text-red-700'
                 }`}>
                 {isPositive ? '↑' : '↓'} {stats.totalPnlPercent.toFixed(2)}%
               </div>
-              <div className="flex items-center justify-between pt-2 gap-2">
-                <span className="text-xs text-gray-500 flex-shrink-0">PnL Percentage</span>
-                <span className={`text-sm font-semibold truncate ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="flex items-center justify-between pt-1 sm:pt-1.5 gap-2">
+                <span className="text-[9px] sm:text-xs text-gray-400 flex-shrink-0 uppercase font-bold">PnL %</span>
+                <span className={`text-xs sm:text-[13px] font-extrabold truncate ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                   {isPositive ? '+' : '-'}{stats.totalPnlPercent.toFixed(2)}%
                 </span>
               </div>
@@ -152,30 +152,30 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
       </div>
 
       {/* Asset Allocation Card */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all group">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200">
-            <PieChart className="w-5 h-5 text-white" />
+      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-lg border-2 border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all group overflow-hidden">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-200 flex-shrink-0">
+            <PieChart className="w-4 h-4 text-white" />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-600">Asset Allocation</p>
-            <p className="text-2xl font-bold text-gray-900">{Object.keys(stats.typeBreakdown).length} Types</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-[9px] sm:text-xs font-semibold text-gray-500 uppercase tracking-widest">Allocation</p>
+            <p className="text-base sm:text-lg font-bold text-gray-900 truncate">{Object.keys(stats.typeBreakdown).length} Types</p>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {Object.entries(stats.typeBreakdown)
             .sort(([, a], [, b]) => b - a)
-            .slice(0, 3)
+            .slice(0, 2)
             .map(([type, value]) => {
               const percentage = ((value / stats.currentValue) * 100).toFixed(1);
               return (
                 <div key={type}>
-                  <div className="flex items-center justify-between text-sm mb-1.5">
-                    <span className="font-medium text-gray-700">{getTypeLabel(type)}</span>
+                  <div className="flex items-center justify-between text-[11px] sm:text-xs mb-1">
+                    <span className="font-medium text-gray-600">{getTypeLabel(type)}</span>
                     <span className="font-bold text-gray-900">{percentage}%</span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-1 bg-gray-50 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -191,27 +191,27 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
       </div>
 
       {/* Performance Card */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100 hover:border-pink-200 hover:shadow-xl transition-all group">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-pink-200">
-            <Award className="w-5 h-5 text-white" />
+      <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-lg border-2 border-gray-100 hover:border-pink-200 hover:shadow-xl transition-all group overflow-hidden">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg shadow-pink-200 flex-shrink-0">
+            <Award className="w-4 h-4 text-white" />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-600">Win Rate</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.winRate.toFixed(0)}%</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-[9px] sm:text-xs font-semibold text-gray-500 uppercase tracking-widest">Win Rate</p>
+            <p className="text-base sm:text-lg font-bold text-gray-900 truncate">{stats.winRate.toFixed(0)}%</p>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div>
-            <div className="flex items-center justify-between text-sm mb-2">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="font-medium text-gray-700">Winners</span>
+            <div className="flex items-center justify-between text-[11px] sm:text-xs mb-1">
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                <span className="font-medium text-gray-600">Winners</span>
               </div>
-              <span className="font-bold text-green-600">{stats.winners} / {investments.length}</span>
+              <span className="font-bold text-green-600">{stats.winners}/{investments.length}</span>
             </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-1 bg-gray-50 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${stats.winRate}%` }}
@@ -220,14 +220,14 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
           </div>
 
           <div>
-            <div className="flex items-center justify-between text-sm mb-2">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="font-medium text-gray-700">Losers</span>
+            <div className="flex items-center justify-between text-[11px] sm:text-xs mb-1">
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                <span className="font-medium text-gray-600">Losers</span>
               </div>
-              <span className="font-bold text-red-600">{stats.losers} / {investments.length}</span>
+              <span className="font-bold text-red-600">{stats.losers}/{investments.length}</span>
             </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-1 bg-gray-50 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-red-500 to-rose-500 rounded-full transition-all duration-500"
                 style={{ width: `${(stats.losers / investments.length) * 100}%` }}
@@ -235,10 +235,10 @@ export default function PortfolioStats({ investments }: PortfolioStatsProps) {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-gray-100">
+          <div className="pt-2 border-t border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Avg Return</span>
-              <span className={`text-lg font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              <span className="text-[11px] sm:text-xs font-medium text-gray-500">Avg Return</span>
+              <span className={`text-sm sm:text-base font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                 {isPositive ? '+' : ''}{stats.totalPnlPercent.toFixed(2)}%
               </span>
             </div>

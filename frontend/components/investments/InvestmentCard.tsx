@@ -19,8 +19,8 @@ export default function InvestmentCard({ investment, onEdit, onSell }: Investmen
   const pnlPercent = investment.pnlPercent || 0;
   const isPositive = pnl >= 0;
   const investedAmount = investment.quantity * investment.buyPrice;
-  const currentValue = investment.currentPrice 
-    ? investment.quantity * investment.currentPrice 
+  const currentValue = investment.currentPrice
+    ? investment.quantity * investment.currentPrice
     : investedAmount;
 
   const getTypeColor = (type: string) => {
@@ -38,42 +38,42 @@ export default function InvestmentCard({ investment, onEdit, onSell }: Investmen
 
   return (
     <>
-      <div className="group relative bg-white rounded-2xl p-6 border-2 border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
+      <div className="group relative bg-white rounded-2xl p-4 sm:p-6 border-2 border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 overflow-hidden">
         {/* Background gradient on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-blue-100/0 group-hover:from-blue-50/50 group-hover:to-blue-100/30 transition-all duration-300 pointer-events-none" />
-        
+
         {/* Content */}
         <div className="relative">
           {/* Header */}
-          <div className="flex items-start justify-between mb-5">
+          <div className="flex items-start justify-between mb-4 sm:mb-5">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xl font-bold text-gray-900 truncate">
+                <span className="text-lg sm:text-xl font-bold text-gray-900 truncate">
                   {investment.symbol}
                 </span>
-                <span className={`px-2.5 py-1 text-xs font-semibold rounded-lg border ${typeColors.bg} ${typeColors.text} ${typeColors.border}`}>
+                <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-lg border flex-shrink-0 ${typeColors.bg} ${typeColors.text} ${typeColors.border}`}>
                   {investment.type}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 truncate" title={investment.name}>
+              <p className="text-xs sm:text-sm text-gray-600 truncate" title={investment.name}>
                 {investment.name}
               </p>
             </div>
-            
+
             {/* Action Menu */}
             <div className="relative ml-2">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 aria-label="More options"
               >
                 <MoreVertical className="w-4 h-4 text-gray-500" />
               </button>
-              
+
               {showMenu && (
                 <>
-                  <div 
-                    className="fixed inset-0 z-10" 
+                  <div
+                    className="fixed inset-0 z-10"
                     onClick={() => setShowMenu(false)}
                   />
                   <div className="absolute right-0 top-10 z-20 w-40 bg-white rounded-xl shadow-xl border border-gray-200 py-1 animate-fadeIn">
@@ -104,95 +104,91 @@ export default function InvestmentCard({ investment, onEdit, onSell }: Investmen
           </div>
 
           {/* Price Information Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-5">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                <Package className="w-3.5 h-3.5" />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-5">
+            <div className="space-y-0.5 sm:space-y-1">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-500">
+                <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Quantity</span>
               </div>
-              <p className="text-lg font-bold text-gray-900">
+              <p className="text-base sm:text-lg font-bold text-gray-900 truncate">
                 {investment.quantity.toLocaleString('en-IN')}
               </p>
             </div>
-            
-            <div className="space-y-1">
-              <p className="text-xs text-gray-500">Avg Buy Price</p>
-              <p className="text-lg font-bold text-gray-900">
-                ₹{investment.buyPrice.toLocaleString('en-IN', { 
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2 
+
+            <div className="space-y-0.5 sm:space-y-1 text-right sm:text-left">
+              <p className="text-[10px] sm:text-xs text-gray-500">Avg Buy Price</p>
+              <p className="text-base sm:text-lg font-bold text-gray-900 truncate">
+                ₹{investment.buyPrice.toLocaleString('en-IN', {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1
                 })}
               </p>
             </div>
-            
-            <div className="space-y-1">
-              <p className="text-xs text-gray-500">Current Price</p>
-              <p className="text-lg font-bold text-gray-900">
+
+            <div className="space-y-0.5 sm:space-y-1">
+              <p className="text-[10px] sm:text-xs text-gray-500">Current Price</p>
+              <p className="text-base sm:text-lg font-bold text-gray-900 truncate">
                 {investment.priceError ? (
-                  <span className="text-sm text-yellow-600 font-normal">Updating...</span>
+                  <span className="text-xs sm:text-sm text-yellow-600 font-normal">Updating...</span>
                 ) : (
                   `₹${(investment.currentPrice || 0).toLocaleString('en-IN', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1
                   })}`
                 )}
               </p>
             </div>
-            
-            <div className="space-y-1">
-              <p className="text-xs text-gray-500">Invested</p>
-              <p className="text-lg font-bold text-gray-900">
+
+            <div className="space-y-0.5 sm:space-y-1 text-right sm:text-left">
+              <p className="text-[10px] sm:text-xs text-gray-500">Invested</p>
+              <p className="text-base sm:text-lg font-bold text-gray-900 truncate">
                 ₹{investedAmount.toLocaleString('en-IN', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
                 })}
               </p>
             </div>
           </div>
 
           {/* P&L Section */}
-          <div className={`p-4 rounded-xl ${
-            isPositive 
-              ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200' 
+          <div className={`p-3 sm:p-4 rounded-xl ${isPositive
+              ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200'
               : 'bg-gradient-to-br from-red-50 to-rose-50 border border-red-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+            }`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1 text-gray-600">
                   {isPositive ? (
-                    <TrendingUp className="w-4 h-4 text-green-600" />
+                    <TrendingUp className="w-3.5 h-3.5 text-green-600" />
                   ) : (
-                    <TrendingDown className="w-4 h-4 text-red-600" />
+                    <TrendingDown className="w-3.5 h-3.5 text-red-600" />
                   )}
-                  <span className="text-xs font-medium text-gray-600">Total P&L</span>
+                  <span className="text-[10px] sm:text-xs font-medium">Total P&L</span>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-2xl font-bold ${
-                    isPositive ? 'text-green-700' : 'text-red-700'
-                  }`}>
+                <div className="flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+                  <span className={`text-xl sm:text-2xl font-bold ${isPositive ? 'text-green-700' : 'text-red-700'
+                    }`}>
                     {isPositive ? '+' : ''}₹{Math.abs(pnl).toLocaleString('en-IN', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
                     })}
                   </span>
-                  <span className={`text-sm font-semibold ${
-                    isPositive ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    ({isPositive ? '+' : ''}{pnlPercent.toFixed(2)}%)
+                  <span className={`text-[10px] sm:text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                    ({isPositive ? '+' : ''}{pnlPercent.toFixed(1)}%)
                   </span>
                 </div>
               </div>
-              
-              <div className="text-right">
-                <div className="flex items-center gap-1.5 justify-end text-xs text-gray-500 mb-1">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Buy Date</span>
+
+              <div className="text-right flex-shrink-0">
+                <div className="flex items-center gap-1 justify-end text-[10px] text-gray-500 mb-0.5 sm:mb-1">
+                  <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span className="hidden sm:inline">Buy Date</span>
                 </div>
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="text-[10px] sm:text-sm font-semibold text-gray-700">
                   {new Date(investment.buyDate).toLocaleDateString('en-IN', {
                     day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
+                    month: 'short'
                   })}
                 </p>
               </div>
@@ -200,13 +196,13 @@ export default function InvestmentCard({ investment, onEdit, onSell }: Investmen
           </div>
 
           {/* Current Value */}
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Current Value</span>
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-xs sm:text-sm font-medium text-gray-600">Current Value</span>
+              <span className="text-base sm:text-lg font-bold text-gray-900 truncate ml-2">
                 ₹{currentValue.toLocaleString('en-IN', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
                 })}
               </span>
             </div>

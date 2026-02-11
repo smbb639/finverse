@@ -91,84 +91,82 @@ export default function InvestmentsPage() {
   const assetTypes = ['STOCK', 'MF', 'ETF', 'CRYPTO', 'OTHER'];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 flex-shrink-0">
-        <div className="px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-1">
-                Portfolio Tracker
-              </h1>
-              <p className="text-gray-600">Track your investments in real-time</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => fetchInvestments(false)}
-                disabled={refreshing}
-                className="p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all disabled:opacity-50"
-                title="Refresh prices"
-                aria-label="Refresh investment prices"
-              >
-                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-              </button>
-              <button
-                onClick={() => setShowForm(true)}
-                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-105 font-semibold"
-              >
-                <Plus className="w-5 h-5" />
-                <span className="hidden sm:inline">Add Investment</span>
-                <span className="sm:hidden">Add</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search Bar */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by symbol or name..."
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all"
-                aria-label="Search investments"
-              />
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${filter === 'all'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                  }`}
-              >
-                All Assets
-              </button>
-              {assetTypes.map(type => (
+    <div className="flex flex-col h-full">
+      {/* Scrollable Container */}
+      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 to-blue-50/30 scroll-smooth">
+        {/* Header Section - Now part of scroll flow on mobile, sticky only on desktop if needed */}
+        <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200">
+          <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <div className="flex flex-row items-center justify-between gap-4 mb-4 sm:mb-6">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-gray-900 truncate">
+                  Portfolio Tracker
+                </h1>
+                <p className="text-[10px] sm:text-base text-gray-600 truncate">Track investments in real-time</p>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button
-                  key={type}
-                  onClick={() => setFilter(type)}
-                  className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${filter === type
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                  onClick={() => fetchInvestments(false)}
+                  disabled={refreshing}
+                  className="p-1.5 sm:p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all disabled:opacity-50"
+                  title="Refresh prices"
+                >
+                  <RefreshCw className={`w-4 h-4 sm:w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-200 active:scale-95 font-semibold text-xs sm:text-base"
+                >
+                  <Plus className="w-4 h-4 sm:w-5 h-5" />
+                  <span>Add</span>
+                  <span className="hidden xs:inline"> Investment</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Search and Filters */}
+            <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search symbol..."
+                  className="w-full pl-9 sm:pl-12 pr-4 py-2 sm:py-3 border-2 border-gray-100 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all text-xs sm:text-base"
+                />
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+                <button
+                  onClick={() => setFilter('all')}
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-[10px] sm:text-sm transition-all whitespace-nowrap ${filter === 'all'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-gray-600 border border-gray-100'
                     }`}
                 >
-                  {type}
+                  All
                 </button>
-              ))}
+                {assetTypes.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setFilter(type)}
+                    className={`px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-[10px] sm:text-sm transition-all whitespace-nowrap ${filter === type
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white text-gray-600 border border-gray-100'
+                      }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 to-blue-50/30">
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-800 text-sm font-medium">
