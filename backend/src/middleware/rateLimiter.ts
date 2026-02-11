@@ -22,7 +22,7 @@ export const authLimiter = rateLimit({
 
 export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
-    max: 50,
+    max: 500,
     message: {
         status: 429,
         message: "Too many API requests, please slow down."
