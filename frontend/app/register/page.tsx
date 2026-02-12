@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import AuthLayout from '@/components/auth-layout';
+import { cn } from '@/lib/utils';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -49,8 +50,8 @@ export default function RegisterPage() {
       await authService.register(data.name, data.email, data.password, Number(data.startingBalance));
       await authService.login(data.email, data.password);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -58,12 +59,12 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout>
-      <div className="flex flex-col space-y-3 text-center">
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          Create an account
+      <div className="flex flex-col space-y-3 mb-8">
+        <h1 className="text-4xl font-black tracking-tight text-white">
+          Create Account
         </h1>
-        <p className="text-muted-foreground">
-          Enter your information to get started with Finverse
+        <p className="text-slate-400 text-sm font-medium">
+          Start your journey to financial freedom today.
         </p>
       </div>
 
@@ -71,45 +72,49 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4">
             {error && (
-              <div className="bg-red-500/10 text-red-300 text-sm p-4 rounded-xl border-2 border-red-500/30 backdrop-blur-sm">
-                {error}
+              <div className="bg-red-500/10 text-red-400 text-xs p-4 rounded-xl border border-red-500/20 backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
+                <span className="font-bold mr-2 truncate">Error:</span> {error}
               </div>
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-slate-300 ml-1 text-xs font-bold uppercase tracking-wider">Full Name</Label>
               <Input
                 id="name"
                 placeholder="Your good name!"
                 disabled={isLoading}
                 {...register('name')}
-                className={errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={cn(
+                  "h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/20 rounded-xl transition-all",
+                  errors.name && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                )}
               />
               {errors.name && (
-                <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-tighter">{errors.name.message}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-slate-300 ml-1 text-xs font-bold uppercase tracking-wider">Email Address</Label>
               <Input
                 id="email"
-                placeholder="name@example.com"
+                placeholder="email@example.com"
                 type="email"
-                autoCapitalize="none"
-                autoComplete="email"
                 disabled={isLoading}
                 {...register('email')}
-                className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={cn(
+                  "h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/20 rounded-xl transition-all",
+                  errors.email && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                )}
               />
               {errors.email && (
-                <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-tighter">{errors.email.message}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <Label htmlFor="password" className="text-slate-300 ml-1 text-xs font-bold uppercase tracking-wider">Password</Label>
+              <div className="relative group">
                 <Input
                   id="password"
                   placeholder="••••••••"
@@ -117,47 +122,49 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   disabled={isLoading}
                   {...register('password')}
-                  className={errors.password ? 'border-destructive focus-visible:ring-destructive pr-10' : 'pr-10'}
+                  className={cn(
+                    "h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/20 rounded-xl pr-12 transition-all",
+                    errors.password && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                  )}
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-4 flex items-center justify-center text-slate-500 hover:text-white transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="h-4 w-4" />
                   )}
-                  <span className="sr-only">Toggle password visibility</span>
-                </Button>
+                </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-400 mt-1">{errors.password.message}</p>
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-tighter">{errors.password.message}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="startingBalance">Starting Balance (Initial Cash)</Label>
+              <Label htmlFor="startingBalance" className="text-slate-300 ml-1 text-xs font-bold uppercase tracking-wider">Starting Balance (Initial Cash)</Label>
               <Input
                 id="startingBalance"
                 placeholder="Ex: 50000"
                 type="number"
                 disabled={isLoading}
                 {...register('startingBalance')}
-                className={errors.startingBalance ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={cn(
+                  "h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/20 rounded-xl transition-all",
+                  errors.startingBalance && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                )}
               />
-              <p className="text-[10px] text-muted-foreground italic">
-                This helps calculate your Net Worth accurately from day one.
+              <p className="text-[9px] text-slate-500 ml-1 italic font-medium">
+                Used to calculate your lifetime Net Worth accurately.
               </p>
               {errors.startingBalance && (
-                <p className="text-xs text-red-400 mt-1">{errors.startingBalance.message as string}</p>
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-tighter">{errors.startingBalance.message as string}</p>
               )}
             </div>
 
-            {/* Premium Create Account Button */}
             <Button
               disabled={isLoading}
               className="
@@ -165,58 +172,55 @@ export default function RegisterPage() {
                 relative 
                 w-full 
                 h-12
-                bg-gradient-to-r from-purple-600 via-purple-600 to-blue-600 
-                hover:from-purple-500 hover:via-purple-500 hover:to-blue-500
+                mt-4
+                bg-indigo-600 
+                hover:bg-indigo-500
                 text-white 
-                font-semibold
+                font-bold
+                rounded-xl
                 shadow-lg 
-                shadow-purple-500/30 
+                shadow-indigo-500/20 
                 transition-all 
                 duration-300 
-                ease-out 
-                hover:scale-[1.02] 
-                hover:shadow-xl
-                hover:shadow-purple-500/50 
                 active:scale-[0.98]
-                mt-2
                 border-0
               "
               type="submit"
             >
-              <span className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Creating account...</span>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="uppercase tracking-widest text-[11px]">Deploying...</span>
                   </>
                 ) : (
                   <>
-                    <span>Create Account</span>
-                    <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    <span className="uppercase tracking-widest text-[11px]">Initialize Portfolio</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
-              </span>
+              </div>
             </Button>
           </div>
         </form>
 
-        <p className="text-center text-sm text-white/60">
+        <p className="text-center text-[10px] text-slate-600 font-medium px-4">
           By clicking continue, you agree to our{' '}
-          <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors">
+          <Link href="/terms" className="text-slate-400 hover:text-white underline underline-offset-4 transition-colors">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors">
+          <Link href="/privacy" className="text-slate-400 hover:text-white underline underline-offset-4 transition-colors">
             Privacy Policy
           </Link>
           .
         </p>
 
-        <p className="text-center text-sm text-white/70">
-          Already have an account?{' '}
+        <p className="text-center text-xs text-slate-500 font-medium pb-4">
+          Already part of the network?{' '}
           <Link
             href="/login"
-            className="font-semibold text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors"
+            className="font-bold text-white hover:text-indigo-400 underline underline-offset-4 transition-colors"
           >
             Sign in
           </Link>

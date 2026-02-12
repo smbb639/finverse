@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import AuthLayout from '@/components/auth-layout';
+import { cn } from '@/lib/utils';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -40,8 +41,8 @@ export default function LoginPage() {
     try {
       await authService.login(data.email, data.password);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Invalid credentials. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Invalid credentials. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -49,52 +50,57 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      <div className="flex flex-col space-y-3 text-center">
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          Welcome back
+      <div className="flex flex-col space-y-3 mb-8">
+        <h1 className="text-4xl font-black tracking-tight text-white">
+          Sign In
         </h1>
-        <p className="text-muted-foreground">
-          Enter your credentials to access your account
+        <p className="text-slate-400 text-sm font-medium">
+          Access your professional wealth dashboard.
         </p>
       </div>
 
       <div className="grid gap-6">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-4">
+          <div className="grid gap-5">
             {error && (
-              <div className="bg-red-500/10 text-red-300 text-sm p-4 rounded-xl border-2 border-red-500/30 backdrop-blur-sm">
-                {error}
+              <div className="bg-red-500/10 text-red-400 text-xs p-4 rounded-xl border border-red-500/20 backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
+                <span className="font-bold mr-2 truncate">Error:</span> {error}
               </div>
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                placeholder="name@example.com"
-                type="email"
-                autoCapitalize="none"
-                autoComplete="email"
-                disabled={isLoading}
-                {...register('email')}
-                className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
-              />
+              <Label htmlFor="email" className="text-slate-300 ml-1 text-xs font-bold uppercase tracking-wider">Email Address</Label>
+              <div className="relative group">
+                <Input
+                  id="email"
+                  placeholder="email@example.com"
+                  type="email"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  disabled={isLoading}
+                  {...register('email')}
+                  className={cn(
+                    "h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/20 rounded-xl transition-all",
+                    errors.email && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                  )}
+                />
+              </div>
               {errors.email && (
-                <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-tighter">{errors.email.message}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between ml-1">
+                <Label htmlFor="password" className="text-slate-300 text-xs font-bold uppercase tracking-wider">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-medium text-purple-400 hover:text-purple-300 hover:underline transition-colors"
+                  className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 uppercase tracking-wider transition-colors"
                 >
-                  Forgot password?
+                  Forgot access?
                 </Link>
               </div>
-              <div className="relative">
+              <div className="relative group">
                 <Input
                   id="password"
                   placeholder="••••••••"
@@ -103,29 +109,28 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   disabled={isLoading}
                   {...register('password')}
-                  className={errors.password ? 'border-destructive focus-visible:ring-destructive pr-10' : 'pr-10'}
+                  className={cn(
+                    "h-12 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500/50 focus:ring-indigo-500/20 rounded-xl pr-12 transition-all",
+                    errors.password && "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20"
+                  )}
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-4 flex items-center justify-center text-slate-500 hover:text-white transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="h-4 w-4" />
                   )}
-                  <span className="sr-only">Toggle password visibility</span>
-                </Button>
+                </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-400 mt-1">{errors.password.message}</p>
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-tighter">{errors.password.message}</p>
               )}
             </div>
 
-            {/* Premium Sign In Button */}
             <Button
               disabled={isLoading}
               className="
@@ -133,56 +138,45 @@ export default function LoginPage() {
                 relative 
                 w-full 
                 h-12
-                bg-gradient-to-r from-purple-600 via-purple-600 to-blue-600 
-                hover:from-purple-500 hover:via-purple-500 hover:to-blue-500
+                mt-2
+                bg-indigo-600 
+                hover:bg-indigo-500
                 text-white 
-                font-semibold
+                font-bold
+                rounded-xl
                 shadow-lg 
-                shadow-purple-500/30 
+                shadow-indigo-500/20 
                 transition-all 
                 duration-300 
-                ease-out 
-                hover:scale-[1.02] 
-                hover:shadow-xl
-                hover:shadow-purple-500/50 
                 active:scale-[0.98]
-                mt-2
                 border-0
               "
               type="submit"
             >
-              <span className="absolute inset-0 flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span className="font-medium">Signing in...</span>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="uppercase tracking-widest text-[11px]">Verifying...</span>
                   </>
                 ) : (
                   <>
-                    <span className="font-bold">Sign In</span>
-                    <ArrowRight
-                      className="
-                        h-5 
-                        w-5 
-                        transition-transform 
-                        duration-300 
-                        group-hover:translate-x-1
-                      "
-                    />
+                    <span className="uppercase tracking-widest text-[11px]">Authorize Access</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
-              </span>
+              </div>
             </Button>
           </div>
         </form>
 
-        <p className="text-center text-sm text-white/70">
-          Don&apos;t have an account?{' '}
+        <p className="text-center text-xs text-slate-500 font-medium">
+          New to the frontier?{' '}
           <Link
             href="/register"
-            className="font-semibold text-purple-400 hover:text-purple-300 underline underline-offset-4 transition-colors"
+            className="font-bold text-white hover:text-indigo-400 underline underline-offset-4 transition-colors"
           >
-            Sign up
+            Create an Account
           </Link>
         </p>
       </div>
