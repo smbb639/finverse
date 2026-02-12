@@ -5,11 +5,14 @@ export interface DashboardStats {
   largestExpense: number;
   favoriteCategory: string;
   monthlyBudget: number;
+  netWorth: number;
+  startingBalance: number;
+  lifetimeExpenses: number;
 }
 
 export interface MonthlySummary {
   month: string;
-  year: number; 
+  year: number;
   total: number;
   transactions: number;
 }

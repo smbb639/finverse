@@ -1,5 +1,7 @@
-import Expense, { IExpense } from "../models/Expense";
 import User from "../models/User";
+import Expense, { IExpense } from "../models/Expense";
+import { Investment } from "../models/Investment";
+import { getLivePrice } from "./marketPrice.services";
 import { startOfMonth, endOfMonth, subMonths, format, parseISO, subDays } from "date-fns";
 import mongoose from "mongoose";
 
@@ -42,7 +44,9 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     monthlyData,
     categoryData,
     recentTransactions,
-    largestExpense
+    largestExpense,
+    lifetimeExpensesResult,
+    activeInvestments
   ] = await Promise.all([
     // Total expenses in period
     Expense.aggregate([
@@ -86,8 +90,38 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
     // Largest single expense
     Expense.findOne(baseQuery)
       .sort({ amount: -1 })
-      .select("amount category description date")
+      .select("amount category description date"),
+
+    // Lifetime expenses
+    Expense.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(userId) } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]),
+
+    // Active investments
+    Investment.find({ user: new mongoose.Types.ObjectId(userId) })
   ]);
+
+  // Extract lifetime stats
+  const lifetimeExpenses = (lifetimeExpensesResult as any)?.[0]?.total || 0;
+  // activeInvestments is already available from the destructuring above
+
+  // Calculate current investment value (parallel price fetching)
+  const investmentValues = await Promise.all(
+    activeInvestments.map(async (inv) => {
+      try {
+        const price = await getLivePrice(inv.symbol);
+        return price * inv.quantity;
+      } catch {
+        return inv.buyPrice * inv.quantity; // Fallback to buy price if live fails
+      }
+    })
+  );
+  const totalInvestmentValue = investmentValues.reduce((acc, val) => acc + val, 0);
+
+  // Net Worth = Starting Balance - Lifetime Expenses + Current Investment Value
+  const netWorth = (user.startingBalance || 0) - lifetimeExpenses + totalInvestmentValue;
+
 
   const totalExpenses = totalExpensesResult[0]?.total || 0;
   const totalTransactions = totalExpensesResult[0]?.count || 0;
@@ -198,7 +232,10 @@ export const getDashboardData = async (userId: string, filters?: DashboardFilter
       averageDailyExpense: parseFloat(averageDailyExpense.toFixed(2)),
       largestExpense: largestExpense?.amount || 0,
       favoriteCategory,
-      monthlyBudget: user.monthlyBudget || 0
+      monthlyBudget: user.monthlyBudget || 0,
+      netWorth: parseFloat(netWorth.toFixed(2)),
+      startingBalance: user.startingBalance || 0,
+      lifetimeExpenses: lifetimeExpenses
     },
     monthlySummary: formattedMonthlyData,
     dailySummary: [],
