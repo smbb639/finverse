@@ -96,9 +96,29 @@ export default function NetWorthTracker() {
 
                             <div className="bg-amber-50/50 p-2 rounded-lg border border-amber-100/50">
                                 <p className="text-[10px] text-amber-700 leading-relaxed font-medium">
-                                   Dummy Calculation!: Starting Balance - Overall Expenses + Current Investment Portfolio.
+                                    Formula: (Starting Cash + Investments) - Overall Expenses.
                                 </p>
                             </div>
+
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    const val = prompt("Enter your initial cash balance:", startingBalance.toString());
+                                    if (val !== null) {
+                                        const num = parseFloat(val);
+                                        if (!isNaN(num)) {
+                                            import('@/lib/api').then(m => {
+                                                m.default.patch('/user/profile', { startingBalance: num })
+                                                    .then(() => window.location.reload());
+                                            });
+                                        }
+                                    }
+                                }}
+                                className="w-full mt-2 py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold transition-colors flex items-center justify-center gap-1"
+                            >
+                                <Plus className="h-2.5 w-2.5" />
+                                Set Initial Cash
+                            </button>
                         </div>
                     </div>
                 </div>

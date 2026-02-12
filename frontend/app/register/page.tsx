@@ -17,6 +17,7 @@ const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  startingBalance: z.string().optional(),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -33,13 +34,19 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      startingBalance: '',
+    }
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     setError('');
     try {
-      await authService.register(data.name, data.email, data.password);
+      await authService.register(data.name, data.email, data.password, Number(data.startingBalance));
       await authService.login(data.email, data.password);
       router.push('/dashboard');
     } catch (err: any) {
@@ -73,10 +80,7 @@ export default function RegisterPage() {
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
-                placeholder="John Doe"
-                type="text"
-                autoCapitalize="words"
-                autoComplete="name"
+                placeholder="Your good name!"
                 disabled={isLoading}
                 {...register('name')}
                 className={errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
@@ -132,6 +136,24 @@ export default function RegisterPage() {
               </div>
               {errors.password && (
                 <p className="text-xs text-red-400 mt-1">{errors.password.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="startingBalance">Starting Balance (Initial Cash)</Label>
+              <Input
+                id="startingBalance"
+                placeholder="Ex: 50000"
+                type="number"
+                disabled={isLoading}
+                {...register('startingBalance')}
+                className={errors.startingBalance ? 'border-destructive focus-visible:ring-destructive' : ''}
+              />
+              <p className="text-[10px] text-muted-foreground italic">
+                This helps calculate your Net Worth accurately from day one.
+              </p>
+              {errors.startingBalance && (
+                <p className="text-xs text-red-400 mt-1">{errors.startingBalance.message as string}</p>
               )}
             </div>
 
