@@ -1,4 +1,5 @@
 import Expense, { IExpense } from "../models/Expense";
+import User from "../models/User";
 import mongoose from "mongoose";
 
 
@@ -26,6 +27,25 @@ export const createExpense = async (
   }
 
   const expense = await Expense.create(expenseData);
+
+  // Synchronize with User document for Compass visibility
+  await User.findByIdAndUpdate(userId, {
+    $inc: {
+      totalLifetimeSpent: amount,
+      [`categoryExpenses.${category}`]: amount
+    },
+    $push: {
+      recentExpenses: {
+        $each: [{
+          description: description || "No description",
+          amount,
+          category,
+          date: expense.date
+        }],
+        $slice: -5 // Keep only the last 5
+      }
+    }
+  });
 
   return expense;
 };
@@ -90,17 +110,48 @@ export const updateExpense = async (
     date?: Date;
   }
 ) => {
+  const oldExpense = await Expense.findOne({ _id: expenseId, user: userId });
+  if (!oldExpense) return null;
+
   const expense = await Expense.findOneAndUpdate(
     { _id: expenseId, user: userId },
     updates,
     { new: true, runValidators: true }
   );
 
+  if (expense) {
+    const amountDiff = (updates.amount !== undefined) ? (updates.amount - oldExpense.amount) : 0;
+
+    const updateQuery: any = { $inc: { totalLifetimeSpent: amountDiff } };
+
+    if (updates.category && updates.category !== oldExpense.category) {
+      // Category changed
+      updateQuery.$inc[`categoryExpenses.${oldExpense.category}`] = -oldExpense.amount;
+      updateQuery.$inc[`categoryExpenses.${updates.category}`] = expense.amount;
+    } else if (amountDiff !== 0) {
+      // Same category, different amount
+      updateQuery.$inc[`categoryExpenses.${oldExpense.category}`] = amountDiff;
+    }
+
+    await User.findByIdAndUpdate(userId, updateQuery);
+  }
+
   return expense;
 };
 
 export const deleteExpense = async (expenseId: string, userId: string) => {
   const expense = await Expense.findOneAndDelete({ _id: expenseId, user: userId });
+
+  if (expense) {
+    // Reverse the synchronization
+    await User.findByIdAndUpdate(userId, {
+      $inc: {
+        totalLifetimeSpent: -expense.amount,
+        [`categoryExpenses.${expense.category}`]: -expense.amount
+      }
+    });
+  }
+
   return expense;
 };
 

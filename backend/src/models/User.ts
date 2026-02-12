@@ -6,6 +6,9 @@ export interface IUser extends Document {
   password: string;
   monthlyBudget: number;
   startingBalance: number;
+  totalLifetimeSpent: number;
+  categoryExpenses: Record<string, number>;
+  recentExpenses: Array<{ description: string; amount: number; category: string; date: Date }>;
   createdAt: Date;
 }
 
@@ -32,6 +35,23 @@ const UserSchema = new Schema<IUser>(
       type: Number,
       default: 0
     },
+    totalLifetimeSpent: {
+      type: Number,
+      default: 0
+    },
+    categoryExpenses: {
+      type: Map,
+      of: Number,
+      default: {}
+    },
+    recentExpenses: [
+      {
+        description: String,
+        amount: Number,
+        category: String,
+        date: { type: Date, default: Date.now }
+      }
+    ],
     createdAt: {
       type: Date,
       default: Date.now
