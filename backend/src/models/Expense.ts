@@ -6,6 +6,7 @@ export interface IExpense extends Document {
   category: string;
   description: string;
   date: Date;
+  addedBy: string;
   goal?: mongoose.Types.ObjectId;
 }
 
@@ -14,6 +15,10 @@ const ExpenseSchema = new Schema<IExpense>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true
+    },
+    addedBy: {
+      type: String,
       required: true
     },
     amount: {

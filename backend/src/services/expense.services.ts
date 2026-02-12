@@ -11,8 +11,12 @@ export const createExpense = async (
   date?: Date,
   goalId?: string
 ) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
   const expenseData: any = {
     user: userId,
+    addedBy: user.name,
     amount,
     category,
     date: date || new Date()
