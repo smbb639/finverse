@@ -4,6 +4,7 @@ import { Menu, Search, Bell, Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MarketSnapshot from './MarketSnapshot';
 import PortfolioPerformance from './PortfolioPerformance';
+import NetWorthTracker from './NetWorthTracker';
 
 interface User {
   name: string;
@@ -54,6 +55,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <MarketSnapshot />
             <div className="hidden md:block h-6 w-px bg-gray-200" />
             <PortfolioPerformance />
+            <div className="hidden lg:block h-6 w-px bg-gray-200" />
+            <NetWorthTracker />
           </div>
 
           {/* Right Section - User Actions */}

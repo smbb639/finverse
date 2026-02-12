@@ -14,6 +14,9 @@ export interface DashboardStats {
     largestExpense: number;
     favoriteCategory: string;
     monthlyBudget: number;
+    netWorth: number;
+    startingBalance: number;
+    lifetimeExpenses: number;
   };
   monthlySummary: Array<{
     month: string;
