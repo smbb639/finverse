@@ -9,9 +9,10 @@ interface InvestmentCardProps {
   investment: InvestmentWithMetrics;
   onEdit: (investment: InvestmentWithMetrics) => void;
   onSell: (id: string, sellPrice: number, sellDate: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }
 
-export default function InvestmentCard({ investment, onEdit, onSell }: InvestmentCardProps) {
+export default function InvestmentCard({ investment, onEdit, onSell, onDelete }: InvestmentCardProps) {
   const [isSelling, setIsSelling] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -92,10 +93,20 @@ export default function InvestmentCard({ investment, onEdit, onSell }: Investmen
                         setIsSelling(true);
                         setShowMenu(false);
                       }}
+                      className="w-full px-4 py-2.5 text-left text-sm text-amber-600 hover:bg-amber-50 flex items-center gap-2 transition-colors"
+                    >
+                      <TrendingDown className="w-4 h-4" />
+                      Sell Holding
+                    </button>
+                    <button
+                      onClick={() => {
+                        onDelete(investment._id);
+                        setShowMenu(false);
+                      }}
                       className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
-                      Sell
+                      Delete Permanently
                     </button>
                   </div>
                 </>
@@ -152,8 +163,8 @@ export default function InvestmentCard({ investment, onEdit, onSell }: Investmen
 
           {/* P&L Section */}
           <div className={`p-3 sm:p-4 rounded-xl ${isPositive
-              ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200'
-              : 'bg-gradient-to-br from-red-50 to-rose-50 border border-red-200'
+            ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200'
+            : 'bg-gradient-to-br from-red-50 to-rose-50 border border-red-200'
             }`}>
             <div className="flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">

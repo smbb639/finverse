@@ -76,6 +76,19 @@ export default function InvestmentsPage() {
     }
   };
 
+  const handleDeleteInvestment = async (id: string) => {
+    try {
+      if (!window.confirm('Are you sure you want to delete this holding permanently? This will not be recorded in your history.')) {
+        return;
+      }
+      await investmentService.deleteInvestment(id);
+      await fetchInvestments(false);
+    } catch (error) {
+      console.error('Error deleting investment:', error);
+      setError('Failed to delete investment. Please try again.');
+    }
+  };
+
   // Filter and search investments
   const filteredInvestments = investments
     .filter(inv => filter === 'all' || inv.type === filter)
@@ -271,6 +284,7 @@ export default function InvestmentsPage() {
                     setShowForm(true);
                   }}
                   onSell={handleSellInvestment}
+                  onDelete={handleDeleteInvestment}
                 />
               ))}
             </div>
@@ -283,6 +297,7 @@ export default function InvestmentsPage() {
                 setShowForm(true);
               }}
               onSell={handleSellInvestment}
+              onDelete={handleDeleteInvestment}
             />
           )}
         </div>

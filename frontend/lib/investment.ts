@@ -48,8 +48,13 @@ export const investmentService = {
     return response.data.data;
   },
 
-  // Sell/Delete an investment
+  // Sell an investment (moves to history)
   async sellInvestment(id: string, sellPrice: number, sellDate: string): Promise<void> {
-    await api.post(`/investment/${id}`, { data: { sellPrice, sellDate } });
+    await api.post(`/investment/${id}/sell`, { sellPrice, sellDate });
+  },
+
+  // Delete an investment (removes permanently)
+  async deleteInvestment(id: string): Promise<void> {
+    await api.delete(`/investment/${id}`);
   },
 };

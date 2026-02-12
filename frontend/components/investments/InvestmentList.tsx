@@ -9,12 +9,13 @@ interface InvestmentListProps {
   investments: InvestmentWithMetrics[];
   onEdit: (investment: InvestmentWithMetrics) => void;
   onSell: (id: string, sellPrice: number, sellDate: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }
 
 type SortField = 'symbol' | 'type' | 'quantity' | 'buyPrice' | 'currentPrice' | 'pnl' | 'pnlPercent';
 type SortOrder = 'asc' | 'desc';
 
-export default function InvestmentList({ investments, onEdit, onSell }: InvestmentListProps) {
+export default function InvestmentList({ investments, onEdit, onSell, onDelete }: InvestmentListProps) {
   const [sellingInvestment, setSellingInvestment] = useState<InvestmentWithMetrics | null>(null);
   const [sortField, setSortField] = useState<SortField>('symbol');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
@@ -235,14 +236,21 @@ export default function InvestmentList({ investments, onEdit, onSell }: Investme
                         <button
                           onClick={() => onEdit(investment)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          aria-label={`Edit ${investment.symbol}`}
+                          title="Edit Investment"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setSellingInvestment(investment)}
+                          className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                          title="Sell/Exit (Recorded in History)"
+                        >
+                          <TrendingDown className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onDelete(investment._id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          aria-label={`Sell ${investment.symbol}`}
+                          title="Delete Permanently (No History)"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
