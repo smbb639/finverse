@@ -3,6 +3,7 @@
 import { Menu, Search, Bell, Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import MarketSnapshot from './MarketSnapshot';
+import PortfolioPerformance from './PortfolioPerformance';
 
 interface User {
   name: string;
@@ -48,9 +49,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <Menu className="w-6 h-6" />
           </button>
 
-          {/* Left Section - Market Snapshot */}
-          <div className="flex items-center">
+          {/* Left Section - Market Snapshot & Portfolio */}
+          <div className="flex items-center gap-3">
             <MarketSnapshot />
+            <div className="hidden md:block h-6 w-px bg-gray-200" />
+            <PortfolioPerformance />
           </div>
 
           {/* Right Section - User Actions */}

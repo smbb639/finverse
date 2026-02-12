@@ -17,6 +17,8 @@ export interface Investment {
 export interface InvestmentWithMetrics extends Investment {
   pnl?: number;
   pnlPercent?: number;
+  dailyPnL?: number | null;
+  dailyPnLPercent?: number | null;
   priceError?: boolean;
 }
 
