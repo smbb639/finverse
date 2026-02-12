@@ -2,71 +2,68 @@ import axios from "axios";
 
 const priceCache = new Map<
   string,
-  { price: number; timestamp: number }
+  { price: number; previousClose: number | null; timestamp: number }
 >();
 
-const CACHE_TTL = 15 * 1000; // 15 seconds
+const CACHE_TTL = 30 * 1000; 
 
-const extractPrice = (response: any): number | null => {
-  return (
-    response?.data?.chart?.result?.[0]?.meta?.regularMarketPrice ??
-    null
-  );
+const extractPriceData = (response: any) => {
+  const meta = response?.data?.chart?.result?.[0]?.meta;
+  return {
+    price: meta?.regularMarketPrice ?? null,
+    previousClose: meta?.previousClose ?? null
+  };
 };
 
-export const getLivePrice = async (symbol: string): Promise<number> => {
+export const getLivePriceData = async (symbol: string): Promise<{ price: number; previousClose: number | null }> => {
   const cacheKey = symbol.toUpperCase();
   const cached = priceCache.get(cacheKey);
 
-  //  Return cached price if valid
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.price;
+    return { price: cached.price, previousClose: cached.previousClose };
   }
 
   try {
-    //  Fetch NSE & BSE in parallel
     const [nsRes, boRes] = await Promise.allSettled([
-      axios.get(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${cacheKey}.NS`
-      ),
-      axios.get(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${cacheKey}.BO`
-      ),
+      axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${cacheKey}.NS`),
+      axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${cacheKey}.BO`),
     ]);
 
-    let price: number | null = null;
+    let data: { price: number | null; previousClose: number | null } = { price: null, previousClose: null };
 
-    // 3️ Prefer NSE price
     if (nsRes.status === "fulfilled") {
-      price = extractPrice(nsRes.value);
+      data = extractPriceData(nsRes.value);
     }
 
-    // 4️ Fallback to BSE
-    if (!price && boRes.status === "fulfilled") {
-      price = extractPrice(boRes.value);
+    if (!data.price && boRes.status === "fulfilled") {
+      data = extractPriceData(boRes.value);
     }
 
-    if (price == null) {
-    throw new Error("Price not found on NSE or BSE");
-}
+    if (data.price == null) {
+      throw new Error("Price not found on NSE or BSE");
+    }
 
-
-    //  Cache result
     priceCache.set(cacheKey, {
-      price,
+      price: data.price,
+      previousClose: data.previousClose,
       timestamp: Date.now(),
     });
 
-    return price;
+    return { price: data.price, previousClose: data.previousClose };
   } catch (error) {
-    //  Fallback to cache if API fails
     if (cached) {
-      return cached.price;
+      return { price: cached.price, previousClose: cached.previousClose };
     }
-
     throw new Error("Invalid symbol");
   }
 };
+
+
+export const getLivePrice = async (symbol: string): Promise<number> => {
+  const data = await getLivePriceData(symbol);
+  return data.price;
+};
+
 
 export const searchSymbols = async (query: string) => {
   if (!query || query.length < 1) return [];
@@ -80,14 +77,13 @@ export const searchSymbols = async (query: string) => {
         newsCount: 0,
         enableFuzzyQuery: true,
         lang: "en-IN",
-        region: "IN", 
+        region: "IN",
       },
       headers: {
         "User-Agent": "Morzilla/5.0",
       }
     }
   );
-  console.log("🟡 Yahoo raw quotes:" , res.data?.quotes);
   return (
     res.data?.quotes
       ?.filter(

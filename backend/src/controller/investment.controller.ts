@@ -1,9 +1,9 @@
 import { Response } from "express";
 import { Investment } from "../models/Investment";
 import { InvestmentHistory } from "../models/InvestmentHistory";
-import { getLivePrice } from "../services/marketPrice.services";
 import { AuthRequest } from "../middleware/auth.middleware";
-import { searchSymbols } from "../services/marketPrice.services";
+import { getLivePriceData, searchSymbols, getLivePrice } from "../services/marketPrice.services";
+
 
 export const addInvestment = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
@@ -19,7 +19,7 @@ export const addInvestment = async (req: AuthRequest, res: Response) => {
     } = req.body;
     const livePrice = await getLivePrice(symbol);
 
-  if(!livePrice || livePrice <=0) {
+    if (!livePrice || livePrice <= 0) {
       return res.status(400).json({
         success: false,
         message: "invalid symbol"
@@ -64,6 +64,8 @@ export const addInvestment = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
 export const getInvestments = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
 
@@ -73,27 +75,35 @@ export const getInvestments = async (req: AuthRequest, res: Response) => {
     const enriched = await Promise.all(
       investments.map(async (inv) => {
         try {
-          const livePrice = await getLivePrice(inv.symbol);
+          const { price: livePrice, previousClose } = await getLivePriceData(inv.symbol);
 
-          const pnl =
-            (livePrice - inv.buyPrice) * inv.quantity;
+          const pnl = (livePrice - inv.buyPrice) * inv.quantity;
+          const pnlPercent = ((livePrice - inv.buyPrice) / inv.buyPrice) * 100;
 
-          const pnlPercent =
-            ((livePrice - inv.buyPrice) / inv.buyPrice) * 100;
+          let dailyPnL = null;
+          let dailyPnLPercent = null;
+
+          if (previousClose) {
+            dailyPnL = (livePrice - previousClose) * inv.quantity;
+            dailyPnLPercent = ((livePrice - previousClose) / previousClose) * 100;
+          }
 
           return {
             ...inv.toObject(),
             currentPrice: livePrice,
             pnl,
-            pnlPercent
+            pnlPercent,
+            dailyPnL,
+            dailyPnLPercent,
           };
         } catch {
-          // 🔥 If price fails, don’t crash portfolio
           return {
             ...inv.toObject(),
             currentPrice: null,
             pnl: null,
             pnlPercent: null,
+            dailyPnL: null,
+            dailyPnLPercent: null,
             priceError: true
           };
         }
@@ -108,6 +118,7 @@ export const getInvestments = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
 
 export const updateInvestment = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
