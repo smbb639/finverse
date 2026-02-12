@@ -4,9 +4,9 @@ import User from "../models/User";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, startingBalance } = req.body;
 
-    const user = await registerUser(name, email, password);
+    const user = await registerUser(name, email, password, startingBalance);
 
     res.status(201).json({
       message: "User registered successfully",

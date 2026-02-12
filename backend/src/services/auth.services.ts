@@ -5,7 +5,8 @@ import User from "../models/User";
 export const registerUser = async (
   name: string,
   email: string,
-  password: string
+  password: string,
+  startingBalance: number = 0
 ) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -17,7 +18,8 @@ export const registerUser = async (
   const user = await User.create({
     name,
     email,
-    password: hashedPassword
+    password: hashedPassword,
+    startingBalance
   });
 
   return user;
