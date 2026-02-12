@@ -7,36 +7,36 @@ import { searchSymbols } from "../services/marketPrice.services";
 
 export const addInvestment = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
-try {
-    
-  const {
-    symbol,
-    name,
-    quantity,
-    buyPrice,
-    buyDate,
-    type
-  } = req.body;
-  const livePrice = await getLivePrice(symbol);
+  try {
+
+    const {
+      symbol,
+      name,
+      quantity,
+      buyPrice,
+      buyDate,
+      type
+    } = req.body;
+    const livePrice = await getLivePrice(symbol);
 
   if(!livePrice || livePrice <=0) {
-    return res.status(400).json({
-      success: false,
-      message: "invalid symbol"
-    })
-  }
+      return res.status(400).json({
+        success: false,
+        message: "invalid symbol"
+      })
+    }
 
-  const existing = await Investment.findOne({
+    const existing = await Investment.findOne({
       user: userId,
       symbol
     });
-     if (existing) {
+    if (existing) {
       const totalQuantity = existing.quantity + quantity;
 
       const avgBuyPrice =
-      (existing.quantity * existing.buyPrice +
-        quantity * buyPrice) /
-      totalQuantity;
+        (existing.quantity * existing.buyPrice +
+          quantity * buyPrice) /
+        totalQuantity;
 
       existing.buyPrice = Number(avgBuyPrice.toFixed(2));
       existing.quantity = totalQuantity;
@@ -48,21 +48,21 @@ try {
         message: "Investment updated",
         data: existing
       });
-    } 
-  const investment = await Investment.create({
-    user: userId,
-    symbol,
-    name,
-    quantity,
-    buyPrice,
-    buyDate,
-    type
-  });
+    }
+    const investment = await Investment.create({
+      user: userId,
+      symbol,
+      name,
+      quantity,
+      buyPrice,
+      buyDate,
+      type
+    });
 
-  res.status(201).json({ success: true, data: investment });
-} catch (err: any) {
+    res.status(201).json({ success: true, data: investment });
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
-}
+  }
 };
 export const getInvestments = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
@@ -112,21 +112,21 @@ export const getInvestments = async (req: AuthRequest, res: Response) => {
 export const updateInvestment = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-try {
-  const investment = await Investment.findOneAndUpdate(
-    { _id: id, user: userId },
-    req.body,
-    { new: true }
-  );
+  try {
+    const investment = await Investment.findOneAndUpdate(
+      { _id: id, user: userId },
+      req.body,
+      { new: true }
+    );
 
-  if (!investment) {
-    return res.status(404).json({ message: "Investment not found" });
+    if (!investment) {
+      return res.status(404).json({ message: "Investment not found" });
+    }
+
+    res.json({ success: true, data: investment });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
   }
-
-  res.json({ success: true, data: investment });
-        } catch (err: any) {
-            res.status(500).json({ success: false, message: err.message });
-        }
 };
 export const sellInvestment = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
@@ -171,12 +171,29 @@ export const sellInvestment = async (req: AuthRequest, res: Response) => {
 };
 
 
+export const deleteInvestment = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  try {
+    const investment = await Investment.findOneAndDelete({ _id: id, user: userId });
+
+    if (!investment) {
+      return res.status(404).json({ success: false, message: "Investment not found" });
+    }
+
+    res.json({ success: true, message: "Investment deleted successfully" });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 export const searchInvestmentSymbols = async (req: AuthRequest, res: Response) => {
   try {
     let q = String(req.query.q || "")
       .trim()
       .toUpperCase()
-      .replace(/[^A-Z0-9]/g, ""); 
+      .replace(/[^A-Z0-9]/g, "");
 
     if (q.length < 2) {
       return res.json({ success: true, data: [] });

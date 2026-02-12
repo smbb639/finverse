@@ -20,15 +20,14 @@ const investmentHistorySchema = new Schema(
     buyDate: Date,
     sellDate: Date,
 
-    pnl: Number,          
-    pnlPercent: Number,  
+    pnl: Number,
+    pnlPercent: Number,
 
     type: {
-    type: String,
-    enum: ["BUY", "SELL"],
-    default: "BUY",
-}
-
+      type: String,
+      enum: ["BUY", "SELL", "STOCK", "MF", "ETF", "CRYPTO", "OTHER"],
+      default: "SELL",
+    }
   },
   { timestamps: true }
 );
