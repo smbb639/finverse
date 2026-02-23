@@ -96,6 +96,11 @@ The API is built following RESTful principles and serves all data in JSON format
 - `GET /api/investment/portfolio` - Fetch current portfolio performance
 
 ---
+###Screenshots 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/79388107-4812-4a32-a327-4e2af8a1b8e4" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/55a1fb29-bba5-4da8-b551-9c0511ddcce9" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a49609a7-4db4-4f12-9035-f9b815dfe41f" />
 
 ##  Contributing
 Since this is an ongoing project, contributions are welcome! Please feel free to open issues or submit pull requests.
