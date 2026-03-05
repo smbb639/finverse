@@ -14,6 +14,7 @@ import exportRouter from "./routes/export.route";
 import { globalLimiter, authLimiter, apiLimiter } from "./middleware/rateLimiter";
 import goalRouter from "./routes/goal.route";
 import userRouter from "./routes/user.route";
+import metricsRouter from "./routes/metrics.route";
 
 dotenv.config();
 connectDB();
@@ -43,6 +44,7 @@ app.use("/api/calculators", apiLimiter, calculatorsRouter);
 app.use("/api/goals", apiLimiter, goalRouter);
 app.use("/api/export", apiLimiter, exportRouter);
 app.use("/api/user", apiLimiter, userRouter);
+app.use("/api/metrics", apiLimiter, metricsRouter);
 
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
