@@ -5,9 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '@/lib/dashboard';
 import { Coins, ChevronDown, Info, Calculator, Plus, Minus } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
+import InitialCashModal from './InitialCashModal';
 
 export default function NetWorthTracker() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data: dashboardData, isLoading, isError } = useQuery({
         queryKey: ['dashboard', 'summary-v9'], // Reusing the main dashboard query
@@ -103,16 +105,8 @@ export default function NetWorthTracker() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    const val = prompt("Enter your initial cash balance:", startingBalance.toString());
-                                    if (val !== null) {
-                                        const num = parseFloat(val);
-                                        if (!isNaN(num)) {
-                                            import('@/lib/api').then(m => {
-                                                m.default.patch('/user/profile', { startingBalance: num })
-                                                    .then(() => window.location.reload());
-                                            });
-                                        }
-                                    }
+                                    setIsModalOpen(true);
+                                    setIsOpen(false);
                                 }}
                                 className="w-full mt-2 py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold transition-colors flex items-center justify-center gap-1"
                             >
@@ -123,6 +117,12 @@ export default function NetWorthTracker() {
                     </div>
                 </div>
             )}
+
+            <InitialCashModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                currentBalance={startingBalance}
+            />
         </div>
     );
 }
