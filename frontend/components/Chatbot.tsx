@@ -10,7 +10,7 @@ type Message = {
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", text: "Hi 👋 How can I help you today?" }
+    { role: "bot", text: "Namaste! I am Finverse AI, your personal financial assistant. 🇮🇳 How can I help you with your expenses or investment portfolio today?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,14 +32,18 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/chat`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
           body: JSON.stringify({
             message: userMsg.text,
-            history: updatedMessages
+            history: messages.map(m => ({ role: m.role, text: m.text }))
           })
         }
       );
@@ -78,10 +82,9 @@ export default function Chatbot() {
           bg-white rounded-2xl shadow-2xl border
           flex flex-col overflow-hidden
           transition-all duration-300
-          ${
-            open
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-95 pointer-events-none"
+          ${open
+            ? "opacity-100 scale-100"
+            : "opacity-0 scale-95 pointer-events-none"
           }
         `}
       >
@@ -99,16 +102,14 @@ export default function Chatbot() {
           {messages.map((m, i) => (
             <div
               key={i}
-              className={`flex ${
-                m.role === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`flex ${m.role === "user" ? "justify-end" : "justify-start"
+                }`}
             >
               <div
                 className={`max-w-[75%] px-3 py-2 text-sm rounded-2xl shadow
-                  ${
-                    m.role === "user"
-                      ? "bg-indigo-600 text-white rounded-br-sm"
-                      : "bg-white text-gray-800 rounded-bl-sm"
+                  ${m.role === "user"
+                    ? "bg-indigo-600 text-white rounded-br-sm"
+                    : "bg-white text-gray-800 rounded-bl-sm"
                   }
                 `}
               >
