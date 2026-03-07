@@ -12,8 +12,8 @@ export default function MarketSnapshot() {
     const { data, isLoading, isError, refetch, isFetching } = useQuery({
         queryKey: ['market-snapshot'],
         queryFn: () => marketService.getSnapshot(),
-        refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
-        staleTime: 4 * 60 * 1000, // Consider data stale after 4 minutes
+        refetchInterval: 5 * 60 * 1000,
+        staleTime: 4 * 60 * 1000, 
     });
 
     const formatPrice = (price: number) => {
