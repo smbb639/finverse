@@ -20,11 +20,11 @@ import { formatCurrency } from '@/lib/utils';
 import { Skeleton } from './skeleton';
 
 const navItems = [
-  { href: '/dashboard/expenses', icon: PieChart, label: 'Expenses' },
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
   { href: '/dashboard/news', icon: Newspaper, label: 'News' },
   { href: '/dashboard/calculators', icon: Calculator, label: 'Calculators' },
-  { href: '/dashboard/goals', icon: Goal, label: 'Goals' }
+  { href: '/dashboard/goals', icon: Goal, label: 'Goals' },
+  { href: '/dashboard/expenses', icon: PieChart, label: 'Expenses' },
 ];
 
 interface SidebarProps {
