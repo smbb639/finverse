@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { InvestmentWithMetrics } from '@/lib/investment';
 import { investmentService } from '@/lib/investment';
 import PortfolioStats from '@/components/investments/PortfolioStats';
+import AdvancedMetrics from '@/components/investments/AdvancedMetrics';
 import InvestmentCard from '@/components/investments/InvestmentCard';
 import InvestmentForm from '@/components/investments/InvestmentForm';
 import InvestmentList from '@/components/investments/InvestmentList';
 import { Plus, RefreshCw, TrendingUp, LayoutGrid, List, Search } from 'lucide-react';
+import { metricsService, PortfolioMetrics } from '@/lib/metrics';
 
 export default function InvestmentsPage() {
   const [investments, setInvestments] = useState<InvestmentWithMetrics[]>([]);
@@ -19,10 +21,25 @@ export default function InvestmentsPage() {
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<PortfolioMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
 
   useEffect(() => {
     fetchInvestments();
+    fetchMetrics();
   }, []);
+
+  const fetchMetrics = async () => {
+    setMetricsLoading(true);
+    try {
+      const data = await metricsService.getPortfolioMetrics();
+      setMetrics(data);
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+    } finally {
+      setMetricsLoading(false);
+    }
+  };
 
   const fetchInvestments = async (showLoader = true) => {
     if (showLoader) setLoading(true);
@@ -119,7 +136,10 @@ export default function InvestmentsPage() {
               </div>
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button
-                  onClick={() => fetchInvestments(false)}
+                  onClick={() => {
+                    fetchInvestments(false);
+                    fetchMetrics();
+                  }}
                   disabled={refreshing}
                   className="p-1.5 sm:p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all disabled:opacity-50"
                   title="Refresh prices"
@@ -192,6 +212,11 @@ export default function InvestmentsPage() {
             <div className="mb-8">
               <PortfolioStats investments={investments} />
             </div>
+          )}
+
+          {/* Advanced Metrics */}
+          {!loading && investments.length > 0 && (
+            <AdvancedMetrics metrics={metrics} loading={metricsLoading} />
           )}
 
           {/* View Controls */}
