@@ -12,7 +12,8 @@ import {
   Home,
   Calculator,
   Newspaper,
-  Goal
+  Goal,
+  Bell
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '@/lib/dashboard';
@@ -25,6 +26,7 @@ const navItems = [
   { href: '/dashboard/calculators', icon: Calculator, label: 'Calculators' },
   { href: '/dashboard/goals', icon: Goal, label: 'Goals' },
   { href: '/dashboard/expenses', icon: PieChart, label: 'Expenses' },
+  { href: '/dashboard/alerts', icon: Bell, label: 'Set Alerts' },
 ];
 
 interface SidebarProps {
